@@ -1,0 +1,87 @@
+<style>
+    .label1 .row label{
+        cursor: pointer;
+    }
+    .label1 .row input{
+        cursor: pointer;
+    }
+    .label1:hover{
+        background-color: #cccccc;
+    }
+</style>
+<?php 
+$logo = $this->logo;
+?>
+<div class="row" style="margin-top: 10px;">
+    <div class="col-lg-12 col-md-12" style="text-align: center;font-size: 30px;">Logo</div>    
+</div>
+<div class="row">
+    <div class="col-lg-5 col-md-5">&nbsp;</div>
+    <div class="col-lg-7 col-md-7">
+            <div class="row">
+                <div class="col-lg-12 col-md-12">
+                    <?php
+                    if ($logo['file_name'] != "") {
+                        
+                        Core_Common_Image::echoImage($this->baseUrl($logo['file_name']), 70, 70, 'height');
+                    } else {
+                        ?>
+                        <img alt="" src="<?php echo $this->baseUrl('/images/img_photo01.jpg'); ?>">
+                        <?php
+                    }
+                    ?>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12 col-md-12">
+                    <p>                                            
+                        <input type="file" name="logo" onchange='allowUpload(this);' accept="image/*"/>
+                    </p>                
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-4 col-md-4 label1">
+                    <div class="row">
+                        <div class="col-lg-2 col-md-2">
+                            <input type="radio" value="1" name="dynamic" id="dynamic"<?php if ($logo['dynamic'] == '1'&&$logo['show'] == '1') echo ' checked'; ?>/>
+                        </div>
+                        <div class="col-lg-10 col-md-10">
+                            <label for="dynamic">Chuyển động</label>
+                        </div>
+
+
+                    </div>
+
+                </div>
+                <div class="col-lg-4 col-md-4 label1">
+                    <div class="row">
+                        <div class="col-lg-2 col-md-2">
+                            <input type="radio" value="0" name="dynamic" id="static"<?php if ($logo['dynamic'] == '0'&&$logo['show'] == '1') echo ' checked'; ?>/>
+                        </div>
+                        <div class="col-lg-10 col-md-10">
+                            <label for="static">Đứng yên</label>
+                        </div>
+
+
+                    </div>
+
+                </div>
+                <div class="col-lg-4 col-md-4 label1">
+                    <div class="row">
+                        <div class="col-lg-2 col-md-2">
+                            <input type="radio" value="-1" name="dynamic" id="show"<?php if ($logo['show'] == '0') echo ' checked'; ?>/>
+                        </div>
+                        <div class="col-lg-10 col-md-10">
+                            <label for="show">Không hiển thị</label>
+                        </div>
+
+
+                    </div>
+
+                </div>
+            </div>
+
+        
+    </div>
+
+</div>

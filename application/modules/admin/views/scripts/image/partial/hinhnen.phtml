@@ -1,0 +1,34 @@
+<?php 
+$hinhnen = $this->hinhnen;
+?>
+<div class="row" style="margin-top: 10px;">
+    <div class="col-lg-12 col-md-12" style="text-align: center;font-size: 30px;">Hình nền phía trên</div>    
+</div>
+<div class="row">
+    <div class="col-lg-5 col-md-5">&nbsp;</div>
+    <div class="col-lg-7 col-md-7">
+            <div class="row">
+                <div class="col-lg-12 col-md-12">
+                    <?php
+                    if ($hinhnen['file_name'] != "") {
+                        
+                        Core_Common_Image::echoImage($this->baseUrl($hinhnen['file_name']), 70, 70, 'height');
+                    } else {
+                        ?>
+                        <img alt="" src="<?php echo $this->baseUrl('/images/img_photo01.jpg'); ?>">
+                        <?php
+                    }
+                    ?>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12 col-md-12">
+                    <p>                                            
+                        <input type="file" name="hinhnen" onchange='allowUpload(this);' accept="image/*"/>
+                    </p>                
+                </div>
+            </div>
+
+    </div>
+
+</div>

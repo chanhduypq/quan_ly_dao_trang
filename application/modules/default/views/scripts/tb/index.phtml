@@ -1,0 +1,247 @@
+<?php 
+$items = $this->items;
+$auth = Zend_Auth::getInstance();
+if ($auth->hasIdentity()) {
+    $identity = $auth->getIdentity();
+}
+else{
+    $identity=NULL;
+}
+
+?>
+<style>
+    .center{
+        text-align:left;
+    }
+
+    table{
+        width:100%;
+        max-width:1600px;
+        border-right:1px solid #999;
+    }
+
+    td{
+        text-indent:5px;
+        color:#444;
+        border-bottom:1px solid #bbb;
+        border-left:1px solid #bbb;
+    }
+
+    td.left{
+        border-left:1px solid #2e638e;
+    }
+
+    td.right{
+        border-right:1px solid #2e638e;
+    }
+
+    td.bottom{
+        border-bottom:1px solid #2e638e;
+    }
+
+    .grip{
+        width:20px;
+        height:15px;
+        margin-top:-3px;
+        background-image:url('<?php echo $this->baseUrl(); ?>/images/grip.png');
+        margin-left:-5px;
+        position:relative;
+        z-index:88;
+        cursor:e-resize;
+    }
+
+    .grip:hover{
+        background-position-x:-20px;
+    }
+
+    .JCLRLastGrip .grip{
+        background-position-y:-18px;
+        left:-2px;
+    }
+
+    .dragging .grip{
+        background-position-x:-40px;
+    }
+
+    .sampleText{
+        position:relative;
+        width:100%;
+    }
+
+    .dotted{
+        background-image:url('<?php echo $this->baseUrl(); ?>/images/dotted.png');
+        background-repeat:repeat-y;
+    }
+</style>
+
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.16/css/dataTables.bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <script src="<?php echo $this->baseUrl(); ?>/js/jquery.dataTables.min.js?<?php echo substr(str_shuffle(str_repeat($x='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil(10/strlen($x)) )),1,10);?>"></script>
+    <script src="https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap.min.js"></script>
+    <link href="<?php echo $this->baseUrl('/css/form_search.css'); ?>?<?php echo substr(str_shuffle(str_repeat($x='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil(10/strlen($x)) )),1,10);?>" media="screen" rel="stylesheet" type="text/css" />				 
+    <script src="<?php echo $this->baseUrl(); ?>/js/colResizable-1.6.js?<?php echo substr(str_shuffle(str_repeat($x='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil(10/strlen($x)) )),1,10);?>"></script>
+    
+    <form method="POST" action="<?php echo $this->baseUrl();?>/tb">
+        <?php if($this->keyword!=''){?>
+        <div class="row" style="margin-bottom: 20px;">
+            <div class="col-lg-12 col-md-12">
+                <nav class="navbar navbar-default" style="margin-bottom: 5px;border: none;">
+                        <ul class="nav navbar-nav">
+                            <li class="active"><a href="<?php echo $this->baseUrl(); ?>/tb">Hiển thị tất cả thông tin như ban đầu</a></li>                        
+                        </ul>
+                </nav>
+            </div>
+        </div>
+        <?php }?>
+        <div class="row">
+            <div class="col-lg-12 col-md-12">
+                <div class="float-right collapse  dx-search">
+                    <div class="input-group">
+                        <input class="form-control dx-search-input" type="text" name="keyword" value="<?php echo $this->keyword;?>" maxlength="1024" placeholder="Nhập từ khóa vào đây để tìm kiếm" data-clear-input="true">
+                        <div class="input-group-btn">
+                            <button class="btn btn-secondary dx-clear-button" style="display: none;" type="button" data-clear-button="true">
+                                <i class="fa fa-times-circle"></i>
+                            </button>
+                        </div>
+                        <div class="input-group-btn"><button class="btn btn-secondary dx-search-button" type="submit"><i class="fa fa-search"></i></button></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-12 col-md-12">
+                <div class="col-lg-2 col-md-2">
+                    <label>
+                        <input type="radio" name="type" value="ten_vttb"<?php if($this->type=='ten_vttb') echo ' checked="checked"';?>/>
+                        Tên VTTB
+                    </label>
+                </div>
+                <div class="col-lg-3 col-md-3">
+                    <label>
+                        <input type="radio" name="type" value="dac_tinh_ky_thuat"<?php if($this->type=='dac_tinh_ky_thuat') echo ' checked="checked"';?>/>
+                        Đặc tính kỹ thuật
+                    </label>
+                </div>
+                <div class="col-lg-2 col-md-2">
+                    <label>
+                        <input type="radio" name="type" value="don_gia"<?php if($this->type=='don_gia') echo ' checked="checked"';?>/>
+                        Đơn giá
+                    </label>
+                </div>
+            </div>
+        </div>
+    </form>
+<div class="row-fluid">
+    <table class="table table-bordered" id="nanopool-table" style="display: none;">
+            <thead>
+                <th style="width: 10%;">Quyết định</th>
+                <th>Tên VTTB</th>
+                <th>Đặc tính kỹ thuật</th>
+                <th>Đơn vị</th>
+                <th>Đơn giá</th>
+                <th>Số lượng</th>
+                <th>Thành tiền</th>
+                <?php 
+                if(is_array($identity)&&$identity['is_download']=='1'){?>
+                    <th style="width: 5%;"></th>
+                <?php 
+                }
+                ?>
+            </thead>
+            <tbody>
+                <?php 
+                    foreach ($items as $item){?>
+                    <tr id="thiet_bi_id_<?php echo $item['thiet_bi_id'];?>">
+                        <td style="width: 10%;text-align: center;" title="<?php echo $item['noi_dung_quyet_dinh'];?>">
+                            <?php 
+                            echo $item['so_quyet_dinh'];
+                            echo "<br>";
+                            list($date,$time)= explode(" ", $item['ngay_quyet_dinh']);
+                            list($y,$m,$d)= explode("-", $date);
+                            echo "$d/$m/$y";
+                            echo "<br>";
+                            echo Core_Common_String::crop($item['noi_dung_quyet_dinh'], 20);
+                            ?>
+                        </td>
+                        <td>
+                            <?php echo $item['ten_vttb'];?>
+                        </td>
+                        <td>
+                            <?php echo nl2br($item['dac_tinh_ky_thuat']);?>
+                        </td>
+                        <td>
+                            <?php echo $item['don_vi'];?>
+                        </td>
+                        <td>
+                            <?php 
+                            if ($item['don_gia'] == 0) {
+                                echo 0;
+                            } else {
+                                echo number_format(floatval($item['don_gia']), 0, ",", ".") ;
+                            }
+                            ?>
+                        </td>
+                        <td>
+                            <?php 
+                            if ($item['so_luong'] == 0) {
+                                echo 0;
+                            } else {
+                                echo number_format(floatval($item['so_luong']), 0, ",", ".") ;
+                            }
+                            ?>
+                        </td>
+                        <td>
+                            <?php 
+                            if ($item['thanh_tien'] == 0) {
+                                echo 0;
+                            } else {
+                                echo number_format(floatval($item['thanh_tien']), 0, ",", ".") ;
+                            }
+                            ?>
+                        </td>
+                        <?php 
+                        if(is_array($identity)&&$identity['is_download']=='1'){?>
+                            <td style="width: 5%;">
+                                <div style="margin-bottom: 10px;" title="Nhấn vào đây để download file excel">
+                                    <button onclick="window.location='<?php echo $this->baseUrl();?>/tb/index/thiet_bi_id/<?php echo $item['thiet_bi_id'];?>/file_name/excel.xls';">Xls</button>
+                                </div>
+                                
+                                <div title="Nhấn vào đây để download file pdf">
+                                    <button onclick="window.location='<?php echo $this->baseUrl();?>/tb/index/thiet_bi_id/<?php echo $item['thiet_bi_id'];?>/file_name/pdf.pdf';">Pdf</button>
+                                </div>
+                                
+                            </td>
+                        <?php 
+                        }
+                        ?>
+                    </tr>
+                    <?php 
+                    }
+                ?>
+            </tbody>
+        </table>
+
+</div>
+<script>
+    $(window).load(function() {
+          $('#nanopool-table').show();
+          $('#nanopool-table').DataTable();
+          $('#nanopool-table_filter').find('input').eq(0).css('width','270px');
+          <?php 
+          if(is_array($items)&&count($items)>0){?>
+          $("table").colResizable({
+                liveDrag:true, 
+                gripInnerHtml:"<div class='grip'></div>", 
+                draggingClass:"dragging", 
+                resizeMode:'overflow',//'fit'
+                postbackSafe:true,
+                partialRefresh:true
+          });
+          <?php 
+          }
+          ?>
+    });
+    
+    jQuery(function ($){
+    });
+</script>

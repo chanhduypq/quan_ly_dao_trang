@@ -1,0 +1,39 @@
+<div class="row">
+    <div class="col-lg-12 col-md-12">
+        <?php
+        $header_text = $this->header_text;
+        $dynamic = $this->dynamic;
+        ?>
+        <input type="text" name="header_text" style="width: 400px;" value="<?php echo $header_text; ?>">
+
+    </div>
+</div>
+<div class="row" style="margin-top: 20px;">
+
+    <div class="col-lg-2 col-md-2">
+        <div class="row">
+            <div class="col-lg-3 col-md-3">
+                <input type="radio" value="1" name="dynamic" id="dynamic"<?php if ($dynamic == '1') echo ' checked'; ?>/>
+            </div>
+            <div class="col-lg-9 col-md-9">
+                <label for="dynamic">Chuyển động</label>
+            </div>
+
+
+        </div>
+
+    </div>
+    <div class="col-lg-2 col-md-2">
+        <div class="row">
+            <div class="col-lg-3 col-md-3">
+                <input type="radio" value="0" name="dynamic" id="static"<?php if ($dynamic == '0') echo ' checked'; ?>/>
+            </div>
+            <div class="col-lg-9 col-md-9">
+                <label for="static">Đứng yên</label>
+            </div>
+
+
+        </div>
+
+    </div>
+</div>
