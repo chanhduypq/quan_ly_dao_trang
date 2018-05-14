@@ -84,6 +84,8 @@ else{
     <link href="<?php echo $this->baseUrl('/css/form_search.css'); ?>?<?php echo substr(str_shuffle(str_repeat($x='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil(10/strlen($x)) )),1,10);?>" media="screen" rel="stylesheet" type="text/css" />				 
     <script src="<?php echo $this->baseUrl(); ?>/js/colResizable-1.6.js?<?php echo substr(str_shuffle(str_repeat($x='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil(10/strlen($x)) )),1,10);?>"></script>
     <form method="POST" action="<?php echo $this->baseUrl();?>/thanhvien">
+        <?php 
+        if(is_array($identity)&&$identity['is_download']=='1'){?>
         <div class="row" style="margin-top: 20px;margin-bottom: 20px;">
             <div class="col-lg-12 col-md-12" style="margin-bottom: 20px;text-align: right;">
                 <input onclick="window.location = '/thanhvien/add/'" type="button" value="Thêm mới thành viên" class="button">
@@ -93,6 +95,7 @@ else{
 
             </div>
         </div>
+        <?php }?>
         <?php if($this->keyword!=''){?>
         <div class="row" style="margin-bottom: 20px;">
             <div class="col-lg-12 col-md-12">
@@ -121,28 +124,36 @@ else{
             <div class="col-lg-12 col-md-12">
                 <div class="col-lg-2 col-md-2">
                     <label>
-                        <input type="radio" name="type" value="que_quan"<?php if($this->type=='que_quan') echo ' checked="checked"';?>/>
-                        Quê quán
+                        <input type="radio" name="type" value="ten"<?php if($this->type=='ten') echo ' checked="checked"';?>/>
+                        Tên
                     </label>
                 </div>
                 <div class="col-lg-2 col-md-2">
                     <label>
-                        <input type="radio" name="type" value="nam_sinh"<?php if($this->type=='nam_sinh') echo ' checked="checked"';?>/>
-                        Năm sinh
+                        <input type="radio" name="type" value="phap_danh"<?php if($this->type=='phap_danh') echo ' checked="checked"';?>/>
+                        Pháp danh
                     </label>
                 </div>
             </div>
         </div>
     </form>
 <div class="row-fluid">
-    <table class="table table-bordered" id="nanopool-table" style="display: none;">
+    <table class="table table-bordered" id="nanopool-table" style="display: none;width: 100%;">
             <thead>
+                <th>Hình ảnh</th>
                 <th>Họ và tên</th>
                 <th>Pháp danh</th>
-                <th>Quê quán</th>
                 <th>Năm sinh</th>
-                <th>Ngày sinh</th>
-                <th>Thông tin khác</th>
+                <th>Giới tính</th>
+                <th>Nghề nghiệp</th>
+<!--                <th>Email</th>
+                <th>Facebook</th>
+                <th>Số CMND</th>-->
+                <th>Số điện thoại</th>
+                <th>Địa chỉ tạm trú</th>
+                <th>Địa chỉ thường trú</th>
+                <th>Ngày ĐK tham gia</th>
+                <th>Người giới thiệu</th>
                 <?php 
                 if(is_array($identity)&&$identity['is_download']=='1'){?>
                     <th>&nbsp;</th>
@@ -155,22 +166,48 @@ else{
                     foreach ($items as $item){?>
                     <tr>
                         <td>
-                            <?php echo $item['ho_ten'];?>
+                            <?php if(trim($item['hinh_anh'])!=""){?>
+                            <img style="width: 100%;height: auto;" src="<?php echo $this->baseUrl("/avatar/".$item['hinh_anh']);?>"
+                             <?php }?>
+                        </td>
+                        <td>
+                            <?php echo $item['ho'].' '.$item['ten'];?>
                         </td>
                         <td>
                             <?php echo $item['phap_danh'];?>
                         </td>
                         <td>
-                            <?php echo $item['que_quan'];?>
-                        </td>
-                        <td>
                             <?php echo $item['nam_sinh'];?>
                         </td>
                         <td>
-                            <?php echo $item['ngay_sinh_vn'];?>
+                            <?php echo $item['gioi_tinh'];?>
                         </td>
                         <td>
-                            <?php echo nl2br($item['thong_tin_khac']);?>
+                            <?php echo $item['nghe_nghiep'];?>
+                        </td>
+<!--                        <td>
+                            <?php echo nl2br($item['email']);?>
+                        </td>
+                        <td>
+                            <?php echo nl2br($item['facebook']);?>
+                        </td>
+                        <td>
+                            <?php echo nl2br($item['cmnd']);?>
+                        </td>-->
+                        <td>
+                            <?php echo nl2br($item['dien_thoai']);?>
+                        </td>
+                        <td>
+                            <?php echo nl2br($item['dia_chi_tam_tru']);?>
+                        </td>
+                        <td>
+                            <?php echo nl2br($item['dia_chi_thuong_tru']);?>
+                        </td>
+                        <td>
+                            <?php echo nl2br($item['ngay_dk_tham_gia']);?>
+                        </td>
+                        <td>
+                            <?php echo nl2br($item['nguoi_gioi_thieu']);?>
                         </td>
                         <?php 
                         if(is_array($identity)&&$identity['is_download']=='1'){?>

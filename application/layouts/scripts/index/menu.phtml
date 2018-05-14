@@ -13,7 +13,7 @@ else{
             <?php 
             if($module=='default'){?>
                 <li<?php if (Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'index') echo ' class="active"'; ?>><a href="<?php echo $this->baseUrl(); ?>/">Trang chủ</a></li>
-                <li<?php if (Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'dtxd') echo ' class="active"'; ?>><a href="<?php echo $this->baseUrl(); ?>/thanhvien">Thành viên</a></li>                        
+                <li<?php if (Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'thanhvien') echo ' class="active"'; ?>><a href="<?php echo $this->baseUrl(); ?>/thanhvien">Thành viên</a></li>                        
                 <?php 
                 if(is_array($identity)&&$identity['is_upload']=='1'){?>
                 <li<?php if (Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'excel') echo ' class="active"'; ?>><a href="<?php echo $this->baseUrl(); ?>/excel">Nhập liệu</a></li>

@@ -63,38 +63,99 @@ class ExcelController extends Core_Controller_Action {
     private function importExcel($file_name) {
 
         require_once 'PHPExcel/Documentation/Examples/Reader/reader.php';
+        
 
         $objPHPExcel = new reader();
         $data = $objPHPExcel->read($file_name);
-        $this->saveThanhVien($data);
+        $this->saveThanhVien($data,$file_name);
         
         return true;
+        
+        
+    }
+    
+    private function getImage($file_name,$index){
+        include_once 'PHPExcel/IOFactory.php';
+        $objPHPExcel = PHPExcel_IOFactory::load($file_name);
+        foreach ($objPHPExcel->getActiveSheet()->getDrawingCollection() as $drawing) {
+            
+            $cellID = $drawing->getCoordinates();
+            if($cellID == "B$index"){
+                if ($drawing instanceof PHPExcel_Worksheet_MemoryDrawing) {
+                    ob_start();
+                    call_user_func(
+                            $drawing->getRenderingFunction(), $drawing->getImageResource()
+                    );
+
+                    $imageContents = ob_get_contents();
+                    ob_end_clean();
+                    $extension = 'png';
+                } else {
+                    $zipReader = fopen($drawing->getPath(), 'r');
+                    $imageContents = '';
+
+                    while (!feof($zipReader)) {
+                        $imageContents .= fread($zipReader, 1024);
+                    }
+                    fclose($zipReader);
+                    $extension = $drawing->getExtension();
+                }
+                $myFileName = md5(uniqid(rand(), true)) . '.' . $extension;
+                file_put_contents("avatar/".$myFileName, $imageContents);
+                return $myFileName;
+            }
+        }
+        
+        return '';
     }
 
-    private function saveThanhVien($data) {
-
+    private function saveThanhVien($data,$file_name) {
         $mapper = new Default_Model_Thanhvien();
 
+        $i=1;
         foreach ($data as $key=>$value){
-            $ho_ten = $value['A'];
-            $phap_danh=$value['B'];
-            $que_quan=$value['C'];
-            $nam_sinh=$value['D'];
-            $ngay_sinh=$value['E'];
-            list($d,$m,$y)= explode("/", $ngay_sinh);
-            $ngay_sinh="$y-$m-$d";
-            $thong_tin_khac=$value['F'];
-            
-            if($ho_ten!='Họ và tên'){
-                $mapper->insert(array(
-                    'ho_ten' => $ho_ten,
-                    'phap_danh' => $phap_danh,
-                    'que_quan' => $que_quan,
-                    'nam_sinh' => $nam_sinh,
-                    'ngay_sinh' => $ngay_sinh,
-                    'thong_tin_khac' => $thong_tin_khac,
-                ));
+            if($i<6){
+                $i++;
+                continue;
             }
+            
+            $hinh_anh=$this->getImage($file_name, $i);
+//            $hinh_anh = ($i-1).".png";
+            
+            $ho=$value['C'];
+            $ten=$value['D'];
+            $phap_danh=$value['E'];
+            $nam_sinh=$value['F'];
+            $gioi_tinh=$value['G'];
+            $nghe_nghiep=$value['H'];
+            $email=$value['I'];
+            $facebook=$value['J'];
+            $cmnd=$value['K'];
+            $dien_thoai=$value['L'];
+            $dia_chi_tam_tru=$value['M'];
+            $dia_chi_thuong_tru=$value['N'];
+            $ngay_dk_tham_gia=$value['O'];
+            $nguoi_gioi_thieu=$value['P'];
+            
+            $mapper->insert(array(
+                    'hinh_anh'=>$hinh_anh,
+                    'ho' => $ho,
+                    'ten' => $ten,
+                    'phap_danh' => $phap_danh,
+                    'nam_sinh' => $nam_sinh,
+                    'gioi_tinh' => $gioi_tinh,
+                    'nghe_nghiep' => $nghe_nghiep,
+                    'email' => $email,
+                    'facebook' => $facebook,
+                    'cmnd' => $cmnd,
+                    'dien_thoai' => $dien_thoai,
+                    'dia_chi_tam_tru' => $dia_chi_tam_tru,
+                    'dia_chi_thuong_tru' => $dia_chi_thuong_tru,
+                    'ngay_dk_tham_gia' => $ngay_dk_tham_gia,
+                    'nguoi_gioi_thieu' => $nguoi_gioi_thieu,
+                ));
+            
+            $i++;
             
         }
         
