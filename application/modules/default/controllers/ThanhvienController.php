@@ -10,9 +10,11 @@ class ThanhvienController extends Core_Controller_Action {
     }
 
     public function addAction() {
-        
-        if (isset($_FILES['hinh_anh']['name']) && trim($_FILES['hinh_anh']['name']) != "") {
+        if ($this->_request->isPost()) {
             $this->form->removeElement("hinh_anh");
+        }
+        if (isset($_FILES['hinh_anh']['name']) && trim($_FILES['hinh_anh']['name']) != "") {
+            
             $temp = explode(".", $_FILES['hinh_anh']['name']);
             $file_name = md5(uniqid(rand(), true)) . '.' . $temp[count($temp) - 1];
             move_uploaded_file($_FILES['hinh_anh']['tmp_name'], "avatar/$file_name");
@@ -23,19 +25,26 @@ class ThanhvienController extends Core_Controller_Action {
 
     public function editAction() {
 
-        
-        if (isset($_FILES['hinh_anh']['name']) && trim($_FILES['hinh_anh']['name']) != "") {
+        if ($this->_request->isPost()) {
             $this->form->removeElement("hinh_anh");
+        }
+        if (isset($_FILES['hinh_anh']['name']) && trim($_FILES['hinh_anh']['name']) != "") {
             $temp = explode(".", $_FILES['hinh_anh']['name']);
             $file_name = md5(uniqid(rand(), true)) . '.' . $temp[count($temp) - 1];
             move_uploaded_file($_FILES['hinh_anh']['tmp_name'], "avatar/$file_name");
             $this->formData['hinh_anh'] = $file_name;
+            
+            $model=new Default_Model_Thanhvien();
+            $row=$model->fetchRow('id='.$this->_getParam('id'));
+            @unlink("avatar/".$row['hinh_anh']);
         }
         $this->renderScript = 'thanhvien/add.phtml';
     }
 
     public function deleteAction() {
-        
+        $model=new Default_Model_Thanhvien();
+        $row=$model->fetchRow('id='.$this->_getParam('id'));
+        @unlink("avatar/".$row['hinh_anh']);
     }
 
     private function cellBorder($objPHPExcel, $cell, $border) {
@@ -211,10 +220,12 @@ class ThanhvienController extends Core_Controller_Action {
             }
 
 
+            $sheet->getStyle("E$i")->getAlignment()->setWrapText(true);
             $sheet->getStyle("M$i")->getAlignment()->setWrapText(true);
             $sheet->getStyle("N$i")->getAlignment()->setWrapText(true);
             $sheet->getStyle("O$i")->getAlignment()->setWrapText(true);
             $sheet->getStyle("P$i")->getAlignment()->setWrapText(true);
+            
 
 //            $this->cellBorder($objPHPExcel, "D$i");
 //            $objPHPExcel->setActiveSheetIndex(0)->mergeCells("C$i:D$i");

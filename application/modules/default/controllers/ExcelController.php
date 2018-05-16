@@ -35,6 +35,14 @@ class ExcelController extends Core_Controller_Action {
 
     private function delete() {
         Core_Db_Table::getDefaultAdapter()->delete("thanh_vien");
+        $path    = 'avatar';
+        $files = scandir($path);
+        foreach ($files as $file){
+            if ($file != "." && $file != "..") {
+
+                @unlink("avatar/$file");
+            }
+        }
     }
 
     private function add() {
