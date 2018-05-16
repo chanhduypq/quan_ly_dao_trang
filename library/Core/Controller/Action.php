@@ -373,15 +373,9 @@ abstract class Core_Controller_Action extends Zend_Controller_Action {
             return;
         }
         if ($this->_request->isPost()) {
-            $this->form->removeElement("hinh_anh");
             if ($this->form->isValid($this->formData)) {
                 Core_Common_Form::processSpecialInput($this->form, $this->formData);
-                if(isset($_FILES['hinh_anh']['name'])&&trim($_FILES['hinh_anh']['name'])!=""){
-                    $temp= explode(".",$_FILES['hinh_anh']['name']);
-                    $file_name=md5(uniqid(rand(), true)) . '.' . $temp[count($temp)-1];
-                    move_uploaded_file($_FILES['hinh_anh']['tmp_name'], "avatar/$file_name");
-                    $this->formData['hinh_anh']=$file_name;
-                }
+                
                 if ($this->model->createRow($this->formData)->save()) {
                     Core::message()->addSuccess('Thêm mới thành công');
                     $this->_helper->redirector('index', $this->_request->getControllerName(), $this->_request->getModuleName(), array('page' => $this->_getParam('page')));
@@ -415,15 +409,9 @@ abstract class Core_Controller_Action extends Zend_Controller_Action {
         }
         
         if ($this->_request->isPost()) {
-            $this->form->removeElement("hinh_anh");
+            
             if ($this->form->isValid($this->formData)) {
                 Core_Common_Form::processSpecialInput($this->form, $this->formData);
-                if(isset($_FILES['hinh_anh']['name'])&&trim($_FILES['hinh_anh']['name'])!=""){
-                    $temp= explode(".",$_FILES['hinh_anh']['name']);
-                    $file_name=md5(uniqid(rand(), true)) . '.' . $temp[count($temp)-1];
-                    move_uploaded_file($_FILES['hinh_anh']['tmp_name'], "avatar/$file_name");
-                    $this->formData['hinh_anh']=$file_name;
-                }
                 
                 $this->model->update($this->formData, 'id=' . $this->formData['id']);
                 Core::message()->addSuccess('Sửa thành công');

@@ -10,62 +10,72 @@ class ThanhvienController extends Core_Controller_Action {
     }
 
     public function addAction() {
+        
+        if (isset($_FILES['hinh_anh']['name']) && trim($_FILES['hinh_anh']['name']) != "") {
+            $this->form->removeElement("hinh_anh");
+            $temp = explode(".", $_FILES['hinh_anh']['name']);
+            $file_name = md5(uniqid(rand(), true)) . '.' . $temp[count($temp) - 1];
+            move_uploaded_file($_FILES['hinh_anh']['tmp_name'], "avatar/$file_name");
+            $this->formData['hinh_anh'] = $file_name;
+        }
         $this->renderScript = 'thanhvien/add.phtml';
     }
 
     public function editAction() {
 
-        $db = Core_Db_Table::getDefaultAdapter();
-        $id = $this->_getParam('id');
         
-        
-
+        if (isset($_FILES['hinh_anh']['name']) && trim($_FILES['hinh_anh']['name']) != "") {
+            $this->form->removeElement("hinh_anh");
+            $temp = explode(".", $_FILES['hinh_anh']['name']);
+            $file_name = md5(uniqid(rand(), true)) . '.' . $temp[count($temp) - 1];
+            move_uploaded_file($_FILES['hinh_anh']['tmp_name'], "avatar/$file_name");
+            $this->formData['hinh_anh'] = $file_name;
+        }
         $this->renderScript = 'thanhvien/add.phtml';
     }
 
     public function deleteAction() {
         
     }
-    
-    private function cellBorder($objPHPExcel,$cell,$border){
+
+    private function cellBorder($objPHPExcel, $cell, $border) {
 
         $objPHPExcel->getActiveSheet()->getDefaultStyle($cell)->getFill()->applyFromArray(array(
             'borders' => array(
-                  'allborders' => array(
-                      'style' => $border
-                  )
-              )
+                'allborders' => array(
+                    'style' => $border
+                )
+            )
         ));
-
     }
-    
-    private function cellColor($objPHPExcel,$cell,$color){
+
+    private function cellColor($objPHPExcel, $cell, $color) {
 
         $objPHPExcel->getActiveSheet()->getStyle($cell)->getFill()->applyFromArray(array(
             'type' => PHPExcel_Style_Fill::FILL_SOLID,
             'startcolor' => array(
-                 'rgb' => $color
+                'rgb' => $color
             )
         ));
     }
-    
-    private function cellFontColor($objPHPExcel,$cell,$color){
+
+    private function cellFontColor($objPHPExcel, $cell, $color) {
 
         $objPHPExcel->getActiveSheet()->getStyle($cell)->applyFromArray(array(
-            'font'  => array(
-                'bold'  => FALSE,
+            'font' => array(
+                'bold' => FALSE,
                 'color' => array('rgb' => $color),
 //                'size'  => 15,
-                'name'  => 'Verdana'
+                'name' => 'Verdana'
         )));
     }
-    
-    private function cellBold($objPHPExcel,$cell){
+
+    private function cellBold($objPHPExcel, $cell) {
 
         $objPHPExcel->getActiveSheet()->getStyle($cell)->applyFromArray(array(
-            'font'  => array(
-                'bold'  => true,
-                'name'  => 'Verdana'
+            'font' => array(
+                'bold' => true,
+                'name' => 'Verdana'
         )));
     }
 
@@ -84,10 +94,9 @@ class ThanhvienController extends Core_Controller_Action {
                 ->setDescription("Test document for Office 2007 XLSX, generated using PHP classes.")
                 ->setKeywords("office 2007 openxml php")
                 ->setCategory("Test result file");
-        
+
 //        $objPHPExcel->getRowDimension('1')->setRowHeight(-1);
 //        $objPHPExcel->getActiveSheet()->getRowDimension('1')->setRowHeight(50);
-        
 //        $objPHPExcel->getDefaultStyle()->getAlignment()->setWrapText(true);
 
         $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setWidth("12");
@@ -105,7 +114,7 @@ class ThanhvienController extends Core_Controller_Action {
         $objPHPExcel->getActiveSheet()->getColumnDimension('N')->setWidth("26");
         $objPHPExcel->getActiveSheet()->getColumnDimension('O')->setWidth("26");
         $objPHPExcel->getActiveSheet()->getColumnDimension('P')->setWidth("26");
-        
+
         $style = array(
             'alignment' => array(
                 'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
@@ -113,26 +122,25 @@ class ThanhvienController extends Core_Controller_Action {
         );
         $sheet = $objPHPExcel->getActiveSheet();
         $sheet->getDefaultStyle()->applyFromArray($style);
-        
+
 //        $objPHPExcel->getDefaultStyle()
 //                ->getBorders()
 //                ->getTop()
 //        ->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
-
 // Add some data
         $objPHPExcel->setActiveSheetIndex(0)
-            ->setCellValue('A1', 'DANH SÁCH THÔNG TIN NHÂN SỰ TỔ THANH NIÊN PHẬT ĐÀ ĐÀ NẴNG')            
-            ;
+                ->setCellValue('A1', 'DANH SÁCH THÔNG TIN NHÂN SỰ TỔ THANH NIÊN PHẬT ĐÀ ĐÀ NẴNG')
+        ;
         $objPHPExcel->setActiveSheetIndex(0)->mergeCells("A1:F1");
         $this->cellFontColor($objPHPExcel, 'A1', 'ff3333');
         $objPHPExcel->setActiveSheetIndex(0)
-            ->setCellValue('A3', 'Ngày cập nhật: ')  
-                ->setCellValue('C3', date('d/m/Y'))  
-                ->setCellValue('E3', 'TỔNG NAM')  
-                ->setCellValue('F3', '10')  
-                ->setCellValue('H3', 'TỔNG NỮ')  
+                ->setCellValue('A3', 'Ngày cập nhật: ')
+                ->setCellValue('C3', date('d/m/Y'))
+                ->setCellValue('E3', 'TỔNG NAM')
+                ->setCellValue('F3', '10')
+                ->setCellValue('H3', 'TỔNG NỮ')
                 ->setCellValue('I3', '100')
-            ;
+        ;
         $objPHPExcel->setActiveSheetIndex(0)->mergeCells("A3:B3");
         $this->cellFontColor($objPHPExcel, 'A3', '3333ff');
         $this->cellFontColor($objPHPExcel, 'C3', '3333ff');
@@ -141,73 +149,73 @@ class ThanhvienController extends Core_Controller_Action {
         $this->cellFontColor($objPHPExcel, 'H3', '3333ff');
         $this->cellFontColor($objPHPExcel, 'I3', '3333ff');
         $objPHPExcel->setActiveSheetIndex(0)
-            ->setCellValue('A4', 'STT')
-            ->setCellValue('B4', 'Hình ảnh')
-            ->setCellValue('C4', 'Họ Tên')
-            ->setCellValue('D4', '')
-            ->setCellValue('E4', 'Pháp Danh')
-            ->setCellValue('F4', 'Năm Sinh')
-            ->setCellValue('G4', 'Giới tính')
-            ->setCellValue('H4', 'Nghề nghiệp')
-            ->setCellValue('I4', 'Email')
-            ->setCellValue('J4', 'Facebook')
-            ->setCellValue('K4', 'Số CMND')
-            ->setCellValue('L4', 'Số điện thoại')
-            ->setCellValue('M4', 'Địa chỉ tạm trú')
-            ->setCellValue('N4', 'Địa chỉ thường trú')
-            ->setCellValue('O4', 'Ngày ĐK tham gia')
-            ->setCellValue('P4', 'Người giới thiệu')
-            ;
+                ->setCellValue('A4', 'STT')
+                ->setCellValue('B4', 'Hình ảnh')
+                ->setCellValue('C4', 'Họ Tên')
+                ->setCellValue('D4', '')
+                ->setCellValue('E4', 'Pháp Danh')
+                ->setCellValue('F4', 'Năm Sinh')
+                ->setCellValue('G4', 'Giới tính')
+                ->setCellValue('H4', 'Nghề nghiệp')
+                ->setCellValue('I4', 'Email')
+                ->setCellValue('J4', 'Facebook')
+                ->setCellValue('K4', 'Số CMND')
+                ->setCellValue('L4', 'Số điện thoại')
+                ->setCellValue('M4', 'Địa chỉ tạm trú')
+                ->setCellValue('N4', 'Địa chỉ thường trú')
+                ->setCellValue('O4', 'Ngày ĐK tham gia')
+                ->setCellValue('P4', 'Người giới thiệu')
+        ;
         $objPHPExcel->setActiveSheetIndex(0)->mergeCells('C4:D4');
-            $this->cellBold($objPHPExcel, 'A4');
-            $this->cellBold($objPHPExcel, 'B4');
-            $this->cellBold($objPHPExcel, 'C4');
-            $this->cellBold($objPHPExcel, 'D4');
-            $this->cellBold($objPHPExcel, 'E4');
-            $this->cellBold($objPHPExcel, 'F4');
-            $this->cellBold($objPHPExcel, 'G4');
-            $this->cellBold($objPHPExcel, 'H4');
-            $this->cellBold($objPHPExcel, 'I4');
-            $this->cellBold($objPHPExcel, 'J4');
-            $this->cellBold($objPHPExcel, 'K4');
-            $this->cellBold($objPHPExcel, 'L4');
-            $this->cellBold($objPHPExcel, 'M4');
-            $this->cellBold($objPHPExcel, 'N4');
-            $this->cellBold($objPHPExcel, 'O4');
-            $this->cellBold($objPHPExcel, 'P4');
-            
+        $this->cellBold($objPHPExcel, 'A4');
+        $this->cellBold($objPHPExcel, 'B4');
+        $this->cellBold($objPHPExcel, 'C4');
+        $this->cellBold($objPHPExcel, 'D4');
+        $this->cellBold($objPHPExcel, 'E4');
+        $this->cellBold($objPHPExcel, 'F4');
+        $this->cellBold($objPHPExcel, 'G4');
+        $this->cellBold($objPHPExcel, 'H4');
+        $this->cellBold($objPHPExcel, 'I4');
+        $this->cellBold($objPHPExcel, 'J4');
+        $this->cellBold($objPHPExcel, 'K4');
+        $this->cellBold($objPHPExcel, 'L4');
+        $this->cellBold($objPHPExcel, 'M4');
+        $this->cellBold($objPHPExcel, 'N4');
+        $this->cellBold($objPHPExcel, 'O4');
+        $this->cellBold($objPHPExcel, 'P4');
+
         $sql = "select * from thanh_vien";
         $rows = Core_Db_Table::getDefaultAdapter()->fetchAll($sql);
-        $i=6;
-        $stt=1;
-        foreach ($rows as $row){
+        $i = 6;
+        $stt = 1;
+        foreach ($rows as $row) {
             $objPHPExcel->getActiveSheet()->getRowDimension($i)->setRowHeight(50);
             $objPHPExcel->setActiveSheetIndex(0)
-                ->setCellValue("A$i", $stt++)
-                ->setCellValue("C$i", html_entity_decode($row['ho']))
-                ->setCellValue("D$i", html_entity_decode($row['ten']))
-                ->setCellValue("E$i", html_entity_decode($row['phap_danh']))
-                ->setCellValue("F$i", html_entity_decode($row['nam_sinh']))
-                ->setCellValue("G$i", html_entity_decode($row['gioi_tinh']))
-                ->setCellValue("H$i", html_entity_decode($row['nghe_nghiep']))
-                ->setCellValue("I$i", html_entity_decode($row['email']))
-                ->setCellValue("J$i", html_entity_decode($row['facebook']))
-                ->setCellValue("K$i", html_entity_decode($row['cmnd']))
-                ->setCellValue("L$i", html_entity_decode($row['dien_thoai']))
-                ->setCellValue("M$i", html_entity_decode($row['dia_chi_tam_tru']))
-                ->setCellValue("N$i", html_entity_decode($row['dia_chi_thuong_tru']))
-                ->setCellValue("O$i", html_entity_decode($row['ngay_dk_tham_gia']))
-                ->setCellValue("P$i", html_entity_decode($row['nguoi_gioi_thieu']));
-            if(trim($row['hinh_anh'])!=""){
-                $this->insertImage($objPHPExcel,"B$i", $row['hinh_anh']);
+                    ->setCellValue("A$i", $stt++)
+                    ->setCellValue("C$i", html_entity_decode($row['ho']))
+                    ->setCellValue("D$i", html_entity_decode($row['ten']))
+                    ->setCellValue("E$i", html_entity_decode($row['phap_danh']))
+                    ->setCellValue("F$i", html_entity_decode($row['nam_sinh']))
+                    ->setCellValue("G$i", html_entity_decode($row['gioi_tinh']))
+                    ->setCellValue("H$i", html_entity_decode($row['nghe_nghiep']))
+                    ->setCellValue("I$i", html_entity_decode($row['email']))
+                    ->setCellValue("J$i", html_entity_decode($row['facebook']))
+                    ->setCellValue("K$i", html_entity_decode($row['cmnd']))
+                    ->setCellValue("L$i", html_entity_decode($row['dien_thoai']))
+                    ->setCellValue("M$i", html_entity_decode($row['dia_chi_tam_tru']))
+                    ->setCellValue("N$i", html_entity_decode($row['dia_chi_thuong_tru']))
+                    ->setCellValue("O$i", html_entity_decode($row['ngay_dk_tham_gia']))
+                    ->setCellValue("P$i", html_entity_decode($row['nguoi_gioi_thieu']));
+            if (trim($row['hinh_anh']) != "") {
+                $this->insertImage($objPHPExcel, "B$i", $row['hinh_anh']);
             }
-            
-            
+
+
             $sheet->getStyle("M$i")->getAlignment()->setWrapText(true);
             $sheet->getStyle("N$i")->getAlignment()->setWrapText(true);
             $sheet->getStyle("O$i")->getAlignment()->setWrapText(true);
             $sheet->getStyle("P$i")->getAlignment()->setWrapText(true);
-                
+
 //            $this->cellBorder($objPHPExcel, "D$i");
 //            $objPHPExcel->setActiveSheetIndex(0)->mergeCells("C$i:D$i");
             $i++;
@@ -239,8 +247,8 @@ class ThanhvienController extends Core_Controller_Action {
         $objWriter->save('php://output');
         exit;
     }
-    
-    private function insertImage($objPHPExcel,$cell,$value){
+
+    private function insertImage($objPHPExcel, $cell, $value) {
         $objDrawing = new PHPExcel_Worksheet_Drawing();    //create object for Worksheet drawing
         $objDrawing->setName('Customer Signature');        //set name to image
         $objDrawing->setDescription('Customer Signature'); //set description to image
@@ -250,7 +258,7 @@ class ThanhvienController extends Core_Controller_Action {
         $objDrawing->setOffsetY(5);                       //setOffsetY works properly
         $objDrawing->setCoordinates($cell);        //set image to cell
         $objDrawing->setWidth(25);                 //set width, height
-        $objDrawing->setHeight(50);  
+        $objDrawing->setHeight(50);
 
         $objDrawing->setWorksheet($objPHPExcel->getActiveSheet());  //save
     }
