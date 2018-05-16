@@ -14,7 +14,7 @@ class ThanhvienController extends Core_Controller_Action {
             $this->form->removeElement("hinh_anh");
         }
         if (isset($_FILES['hinh_anh']['name']) && trim($_FILES['hinh_anh']['name']) != "") {
-            
+
             $temp = explode(".", $_FILES['hinh_anh']['name']);
             $file_name = md5(uniqid(rand(), true)) . '.' . $temp[count($temp) - 1];
             move_uploaded_file($_FILES['hinh_anh']['tmp_name'], "avatar/$file_name");
@@ -33,32 +33,21 @@ class ThanhvienController extends Core_Controller_Action {
             $file_name = md5(uniqid(rand(), true)) . '.' . $temp[count($temp) - 1];
             move_uploaded_file($_FILES['hinh_anh']['tmp_name'], "avatar/$file_name");
             $this->formData['hinh_anh'] = $file_name;
-            
-            $model=new Default_Model_Thanhvien();
-            $row=$model->fetchRow('id='.$this->_getParam('id'));
-            @unlink("avatar/".$row['hinh_anh']);
+
+            $model = new Default_Model_Thanhvien();
+            $row = $model->fetchRow('id=' . $this->_getParam('id'));
+            @unlink("avatar/" . $row['hinh_anh']);
         }
         $this->renderScript = 'thanhvien/add.phtml';
     }
 
     public function deleteAction() {
-        $model=new Default_Model_Thanhvien();
-        $row=$model->fetchRow('id='.$this->_getParam('id'));
-        @unlink("avatar/".$row['hinh_anh']);
+        $model = new Default_Model_Thanhvien();
+        $row = $model->fetchRow('id=' . $this->_getParam('id'));
+        @unlink("avatar/" . $row['hinh_anh']);
     }
 
-    private function cellBorder($objPHPExcel, $cell, $border) {
-
-        $objPHPExcel->getActiveSheet()->getDefaultStyle($cell)->getFill()->applyFromArray(array(
-            'borders' => array(
-                'allborders' => array(
-                    'style' => $border
-                )
-            )
-        ));
-    }
-
-    private function cellColor($objPHPExcel, $cell, $color) {
+    private function setCellBackgroundColor($objPHPExcel, $cell, $color) {
 
         $objPHPExcel->getActiveSheet()->getStyle($cell)->getFill()->applyFromArray(array(
             'type' => PHPExcel_Style_Fill::FILL_SOLID,
@@ -68,28 +57,66 @@ class ThanhvienController extends Core_Controller_Action {
         ));
     }
 
-    private function cellFontColor($objPHPExcel, $cell, $color) {
+    /**
+     * 
+     * @param PHPExcel $objPHPExcel
+     * @param string $cell A1, B1,...
+     * @param array $style array(
+      'bold' => FALSE,
+      'color' => array('rgb' => 'ff3333'),
+      'size'  => 15,
+      'name' => 'Verdana'
+      )
+     */
+    private function setCellStyle($objPHPExcel, $cell, $style) {
 
         $objPHPExcel->getActiveSheet()->getStyle($cell)->applyFromArray(array(
-            'font' => array(
-                'bold' => FALSE,
-                'color' => array('rgb' => $color),
-//                'size'  => 15,
-                'name' => 'Verdana'
-        )));
+            'font' => $style)
+        );
     }
 
-    private function cellBold($objPHPExcel, $cell) {
+    /**
+     * 
+     * @param PHPExcel $objPHPExcel
+     * @param string $cell A1:A10, nếu chỉ là 1 cell A1 thi là A1:A1
+     * @param array $border_style array(
+      'borders' => array(
+      'right' => array(
+      'style' => PHPExcel_Style_Border::BORDER_MEDIUM,
+      'color' => array('argb' => '766f6e'),
+      )
+      )
+      )
+     */
+    private function setCellBorder($objPHPExcel, $cell, $border_style) {
 
-        $objPHPExcel->getActiveSheet()->getStyle($cell)->applyFromArray(array(
-            'font' => array(
-                'bold' => true,
-                'name' => 'Verdana'
-        )));
+        $sheet = $objPHPExcel->getActiveSheet();
+        $sheet->getStyle($cell)->applyFromArray($border_style);
     }
 
     public function exportAction() {
         require_once 'PHPExcel/Classes/PHPExcel.php';
+        
+        $border_style_all = array(
+            'borders' => array(
+                'top' => array(
+                    'style' => PHPExcel_Style_Border::BORDER_MEDIUM,
+                    'color' => array('argb' => '000000'),
+                ),
+                'bottom' => array(
+                    'style' => PHPExcel_Style_Border::BORDER_MEDIUM,
+                    'color' => array('argb' => '000000'),
+                ),
+                'right' => array(
+                    'style' => PHPExcel_Style_Border::BORDER_MEDIUM,
+                    'color' => array('argb' => '000000'),
+                ),
+                'left' => array(
+                    'style' => PHPExcel_Style_Border::BORDER_MEDIUM,
+                    'color' => array('argb' => '000000'),
+                ),
+            )
+        );
 
 
 // Create new PHPExcel object
@@ -135,13 +162,15 @@ class ThanhvienController extends Core_Controller_Action {
 //        $objPHPExcel->getDefaultStyle()
 //                ->getBorders()
 //                ->getTop()
-//        ->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+//        ->setBorderStyle(PHPExcel_Style_Border::BORDER_MEDIUM);
 // Add some data
         $objPHPExcel->setActiveSheetIndex(0)
                 ->setCellValue('A1', 'DANH SÁCH THÔNG TIN NHÂN SỰ TỔ THANH NIÊN PHẬT ĐÀ ĐÀ NẴNG')
         ;
         $objPHPExcel->setActiveSheetIndex(0)->mergeCells("A1:F1");
-        $this->cellFontColor($objPHPExcel, 'A1', 'ff3333');
+        $this->setCellStyle($objPHPExcel, 'A1', array(
+            'color' => array('rgb' => 'ff3333')
+        ));
         $objPHPExcel->setActiveSheetIndex(0)
                 ->setCellValue('A3', 'Ngày cập nhật: ')
                 ->setCellValue('C3', date('d/m/Y'))
@@ -151,12 +180,15 @@ class ThanhvienController extends Core_Controller_Action {
                 ->setCellValue('I3', '100')
         ;
         $objPHPExcel->setActiveSheetIndex(0)->mergeCells("A3:B3");
-        $this->cellFontColor($objPHPExcel, 'A3', '3333ff');
-        $this->cellFontColor($objPHPExcel, 'C3', '3333ff');
-        $this->cellFontColor($objPHPExcel, 'E3', '3333ff');
-        $this->cellFontColor($objPHPExcel, 'F3', '3333ff');
-        $this->cellFontColor($objPHPExcel, 'H3', '3333ff');
-        $this->cellFontColor($objPHPExcel, 'I3', '3333ff');
+        $style = array(
+            'color' => array('rgb' => '3333ff')
+        );
+        $this->setCellStyle($objPHPExcel, 'A3', $style);
+        $this->setCellStyle($objPHPExcel, 'C3', $style);
+        $this->setCellStyle($objPHPExcel, 'E3', $style);
+        $this->setCellStyle($objPHPExcel, 'F3', $style);
+        $this->setCellStyle($objPHPExcel, 'H3', $style);
+        $this->setCellStyle($objPHPExcel, 'I3', $style);
         $objPHPExcel->setActiveSheetIndex(0)
                 ->setCellValue('A4', 'STT')
                 ->setCellValue('B4', 'Hình ảnh')
@@ -175,30 +207,89 @@ class ThanhvienController extends Core_Controller_Action {
                 ->setCellValue('O4', 'Ngày ĐK tham gia')
                 ->setCellValue('P4', 'Người giới thiệu')
         ;
+        $this->setCellBorder($objPHPExcel, "A4:A4", $border_style_all);
+        $this->setCellBorder($objPHPExcel, "B4:B4", $border_style_all);
+        $this->setCellBorder($objPHPExcel, "C4:D4", $border_style_all);
+        $this->setCellBorder($objPHPExcel, "E4:E4", $border_style_all);
+        $this->setCellBorder($objPHPExcel, "F4:F4", $border_style_all);
+        $this->setCellBorder($objPHPExcel, "G4:G4", $border_style_all);
+        $this->setCellBorder($objPHPExcel, "H4:H4", $border_style_all);
+        $this->setCellBorder($objPHPExcel, "I4:I4", $border_style_all);
+        $this->setCellBorder($objPHPExcel, "J4:J4", $border_style_all);
+        $this->setCellBorder($objPHPExcel, "K4:K4", $border_style_all);
+        $this->setCellBorder($objPHPExcel, "L4:L4", $border_style_all);
+        $this->setCellBorder($objPHPExcel, "M4:M4", $border_style_all);
+        $this->setCellBorder($objPHPExcel, "L4:L4", $border_style_all);
+        $this->setCellBorder($objPHPExcel, "N4:N4", $border_style_all);
+        $this->setCellBorder($objPHPExcel, "O4:O4", $border_style_all);
+        $this->setCellBorder($objPHPExcel, "P4:P4", $border_style_all);
         $objPHPExcel->setActiveSheetIndex(0)->mergeCells('C4:D4');
-        $this->cellBold($objPHPExcel, 'A4');
-        $this->cellBold($objPHPExcel, 'B4');
-        $this->cellBold($objPHPExcel, 'C4');
-        $this->cellBold($objPHPExcel, 'D4');
-        $this->cellBold($objPHPExcel, 'E4');
-        $this->cellBold($objPHPExcel, 'F4');
-        $this->cellBold($objPHPExcel, 'G4');
-        $this->cellBold($objPHPExcel, 'H4');
-        $this->cellBold($objPHPExcel, 'I4');
-        $this->cellBold($objPHPExcel, 'J4');
-        $this->cellBold($objPHPExcel, 'K4');
-        $this->cellBold($objPHPExcel, 'L4');
-        $this->cellBold($objPHPExcel, 'M4');
-        $this->cellBold($objPHPExcel, 'N4');
-        $this->cellBold($objPHPExcel, 'O4');
-        $this->cellBold($objPHPExcel, 'P4');
+        $style = array(
+            'bold' => true
+        );
+        $this->setCellStyle($objPHPExcel, 'A4', $style);
+        $this->setCellStyle($objPHPExcel, 'B4', $style);
+        $this->setCellStyle($objPHPExcel, 'C4', $style);
+        $this->setCellStyle($objPHPExcel, 'D4', $style);
+        $this->setCellStyle($objPHPExcel, 'E4', $style);
+        $this->setCellStyle($objPHPExcel, 'F4', $style);
+        $this->setCellStyle($objPHPExcel, 'G4', $style);
+        $this->setCellStyle($objPHPExcel, 'H4', $style);
+        $this->setCellStyle($objPHPExcel, 'I4', $style);
+        $this->setCellStyle($objPHPExcel, 'J4', $style);
+        $this->setCellStyle($objPHPExcel, 'K4', $style);
+        $this->setCellStyle($objPHPExcel, 'L4', $style);
+        $this->setCellStyle($objPHPExcel, 'M4', $style);
+        $this->setCellStyle($objPHPExcel, 'N4', $style);
+        $this->setCellStyle($objPHPExcel, 'O4', $style);
+        $this->setCellStyle($objPHPExcel, 'P4', $style);
 
         $sql = "select * from thanh_vien";
         $rows = Core_Db_Table::getDefaultAdapter()->fetchAll($sql);
         $i = 6;
         $stt = 1;
+        $border_style = array(
+            'borders' => array(
+                'top' => array(
+                    'style' => PHPExcel_Style_Border::BORDER_MEDIUM,
+                    'color' => array('argb' => '000000'),
+                ),
+                'bottom' => array(
+                    'style' => PHPExcel_Style_Border::BORDER_MEDIUM,
+                    'color' => array('argb' => '000000'),
+                ),
+                'right' => array(
+                    'style' => PHPExcel_Style_Border::BORDER_MEDIUM,
+                    'color' => array('argb' => '000000'),
+                ),
+            )
+        );
+        $border_style1 = array(
+            'borders' => array(
+                'top' => array(
+                    'style' => PHPExcel_Style_Border::BORDER_MEDIUM,
+                    'color' => array('argb' => '000000'),
+                ),
+                'bottom' => array(
+                    'style' => PHPExcel_Style_Border::BORDER_MEDIUM,
+                    'color' => array('argb' => '000000'),
+                ),
+                'left' => array(
+                    'style' => PHPExcel_Style_Border::BORDER_MEDIUM,
+                    'color' => array('argb' => '000000'),
+                ),
+            )
+        );
+        
+        
+        $sum_nam = $sum_nu = 0;
         foreach ($rows as $row) {
             $objPHPExcel->getActiveSheet()->getRowDimension($i)->setRowHeight(50);
+            if (html_entity_decode($row['gioi_tinh']) == 'Nam') {
+                $sum_nam++;
+            } else {
+                $sum_nu++;
+            }
             $objPHPExcel->setActiveSheetIndex(0)
                     ->setCellValue("A$i", $stt++)
                     ->setCellValue("C$i", html_entity_decode($row['ho']))
@@ -225,12 +316,32 @@ class ThanhvienController extends Core_Controller_Action {
             $sheet->getStyle("N$i")->getAlignment()->setWrapText(true);
             $sheet->getStyle("O$i")->getAlignment()->setWrapText(true);
             $sheet->getStyle("P$i")->getAlignment()->setWrapText(true);
-            
+            $sheet->getStyle("L$i")->getAlignment()->setWrapText(true);
 
-//            $this->cellBorder($objPHPExcel, "D$i");
-//            $objPHPExcel->setActiveSheetIndex(0)->mergeCells("C$i:D$i");
+            $this->setCellBorder($objPHPExcel, "A$i:A$i", $border_style_all);
+            $this->setCellBorder($objPHPExcel, "B$i:B$i", $border_style_all);
+            $this->setCellBorder($objPHPExcel, "E$i:E$i", $border_style_all);
+            $this->setCellBorder($objPHPExcel, "F$i:F$i", $border_style_all);
+            $this->setCellBorder($objPHPExcel, "G$i:G$i", $border_style_all);
+            $this->setCellBorder($objPHPExcel, "H$i:H$i", $border_style_all);
+            $this->setCellBorder($objPHPExcel, "I$i:I$i", $border_style_all);
+            $this->setCellBorder($objPHPExcel, "J$i:J$i", $border_style_all);
+            $this->setCellBorder($objPHPExcel, "K$i:K$i", $border_style_all);
+            $this->setCellBorder($objPHPExcel, "L$i:L$i", $border_style_all);
+            $this->setCellBorder($objPHPExcel, "M$i:M$i", $border_style_all);
+            $this->setCellBorder($objPHPExcel, "N$i:N$i", $border_style_all);
+            $this->setCellBorder($objPHPExcel, "O$i:O$i", $border_style_all);
+            $this->setCellBorder($objPHPExcel, "P$i:P$i", $border_style_all);
+
+            $this->setCellBorder($objPHPExcel, "D$i:D$i", $border_style);
+            $this->setCellBorder($objPHPExcel, "C$i:C$i", $border_style1);
             $i++;
         }
+
+        $objPHPExcel->setActiveSheetIndex(0)
+                ->setCellValue('F3', $sum_nam)
+                ->setCellValue('I3', $sum_nu)
+        ;
 
 
 // Rename worksheet
