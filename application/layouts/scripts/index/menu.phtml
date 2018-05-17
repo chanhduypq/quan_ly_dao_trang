@@ -25,6 +25,7 @@ else{
                 <li<?php if (Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'homecontent') echo ' class="active"'; ?>><a href="<?php echo $this->baseUrl(); ?>/admin/homecontent">Nội dung trang chủ</a></li>                                
                 <li<?php if (Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'image') echo ' class="active"'; ?>><a href="<?php echo $this->baseUrl(); ?>/admin/image">Logo và hình nền</a></li>
                 <li<?php if (Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'headerfooter') echo ' class="active"'; ?>><a href="<?php echo $this->baseUrl(); ?>/admin/headerfooter">Phía trên và phía dưới</a></li>
+                <li<?php if (Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'settings') echo ' class="active"'; ?>><a href="<?php echo $this->baseUrl(); ?>/admin/settings">Cài đặt</a></li>
             <?php 
             }
             ?>

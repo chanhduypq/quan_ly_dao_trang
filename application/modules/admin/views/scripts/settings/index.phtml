@@ -1,0 +1,87 @@
+<?php
+
+if (isset($this->message)&&trim($this->message)!='') {
+    ?>
+    <div style="color: red;text-align: center;width: 100%;">
+        <h3><?php echo $this->message; ?></h3>
+    </div>
+    <?php
+}
+
+$columns=$this->columns;
+?>
+<div class="row" style="margin-top: 20px;margin-bottom: 20px;">
+    <?php     
+    $buttons[]=array('onclick'=>'submit();','label'=>'Lưu');
+    echo $this->toolbar($buttons);
+    ?>
+</div>
+<form name="form" id="form" action="<?php echo $this->url(); ?>" method="post">
+    <label>
+        <input value="hinh_anh" name="columns[]" type="checkbox"<?php if(in_array('hinh_anh', $columns)) echo ' checked="checked"';?>/>
+        &nbsp;&nbsp;&nbsp;Hình ảnh
+    </label>
+    <label>
+        <input value="ho_va_ten" name="columns[]" type="checkbox"<?php if(in_array('ho_va_ten', $columns)) echo ' checked="checked"';?>/>
+        &nbsp;&nbsp;&nbsp;Họ và tên
+    </label>
+    <label>
+        <input value="phap_danh" name="columns[]" type="checkbox"<?php if(in_array('phap_danh', $columns)) echo ' checked="checked"';?>/>
+        &nbsp;&nbsp;&nbsp;Pháp danh
+    </label>
+    <label>
+        <input value="nam_sinh" name="columns[]" type="checkbox"<?php if(in_array('nam_sinh', $columns)) echo ' checked="checked"';?>/>
+        &nbsp;&nbsp;&nbsp;Năm sinh
+    </label>
+    <label>
+        <input value="gioi_tinh" name="columns[]" type="checkbox"<?php if(in_array('gioi_tinh', $columns)) echo ' checked="checked"';?>/>
+        &nbsp;&nbsp;&nbsp;Giới tính
+    </label>
+    <label>
+        <input value="nghe_nghiep" name="columns[]" type="checkbox"<?php if(in_array('nghe_nghiep', $columns)) echo ' checked="checked"';?>/>
+        &nbsp;&nbsp;&nbsp;Nghề nghiệp
+    </label>
+    <label>
+        <input value="email" name="columns[]" type="checkbox"<?php if(in_array('email', $columns)) echo ' checked="checked"';?>/>
+        &nbsp;&nbsp;&nbsp;email
+    </label>
+    <label>
+        <input value="facebook" name="columns[]" type="checkbox"<?php if(in_array('facebook', $columns)) echo ' checked="checked"';?>/>
+        &nbsp;&nbsp;&nbsp;facebook
+    <label>
+        <input value="cmnd" name="columns[]" type="checkbox"<?php if(in_array('cmnd', $columns)) echo ' checked="checked"';?>/>
+        &nbsp;&nbsp;&nbsp;Số CMND
+    </label>
+    <label>
+        <input value="dien_thoai" name="columns[]" type="checkbox"<?php if(in_array('dien_thoai', $columns)) echo ' checked="checked"';?>/>
+        &nbsp;&nbsp;&nbsp;Số điện thoại
+    </label>
+    <label>
+        <input value="dia_chi_tam_tru" name="columns[]" type="checkbox"<?php if(in_array('dia_chi_tam_tru', $columns)) echo ' checked="checked"';?>/>
+        &nbsp;&nbsp;&nbsp;Địa chỉ tạm trú
+    </label>
+    <label>
+        <input value="dia_chi_thuong_tru" name="columns[]" type="checkbox"<?php if(in_array('dia_chi_thuong_tru', $columns)) echo ' checked="checked"';?>/>
+        &nbsp;&nbsp;&nbsp;Địa chỉ thường trú
+    </label>
+    <label>
+        <input value="ngay_dk_tham_gia" name="columns[]" type="checkbox"<?php if(in_array('ngay_dk_tham_gia', $columns)) echo ' checked="checked"';?>/>
+        &nbsp;&nbsp;&nbsp;Ngày ĐK tham gia
+    </label>
+    <label>
+        <input value="nguoi_gioi_thieu" name="columns[]" type="checkbox"<?php if(in_array('nguoi_gioi_thieu', $columns)) echo ' checked="checked"';?>/>
+        &nbsp;&nbsp;&nbsp;Người giới thiệu
+    </label>
+</form>
+<script type="text/javascript">
+    function submit(){
+        if($('input[name="columns[]"]:checked').length==0){
+            alert("Vui lòng chọn ít nhất một thông tin để hiển thị.");
+            return;
+        }
+        document.form.submit();
+    }
+    jQuery(function ($){
+        
+    });
+</script>

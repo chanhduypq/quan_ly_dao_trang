@@ -397,6 +397,9 @@ class ThanhvienController extends Core_Controller_Action {
         }
         $sql = "select * from thanh_vien $where";
         $rows = Core_Db_Table::getDefaultAdapter()->fetchAll($sql);
+        
+        $row= Core_Db_Table::getDefaultAdapter()->fetchRow("select * from columns");
+        $this->view->columns = json_decode($row['columns'], true);
 
         $this->view->items = $rows;
         $this->view->keyword = $keyword;
