@@ -108,7 +108,6 @@ abstract class Core_Controller_Action extends Zend_Controller_Action {
         parent::init();
         $this->setLayout();
         $this->redirectIfNotLogin();
-        $this->redirectIfNotPermistion();
 
         set_time_limit(2000);
 
@@ -147,9 +146,9 @@ abstract class Core_Controller_Action extends Zend_Controller_Action {
     
     public function preDispatch() {
         parent::preDispatch();
-        $this->view->allowAdd = $this->allowAdd = Core_Controller_Action::allowAdd($this->getUserType(), $this->_request->getControllerName());
-        $this->view->allowEdit = $this->allowEdit = Core_Controller_Action::allowEdit($this->getUserType(), $this->_request->getControllerName());
-        $this->view->allowDelete = $this->allowDelete = Core_Controller_Action::allowDelete($this->getUserType(), $this->_request->getControllerName());
+        $this->view->allowAdd = $this->allowAdd;
+        $this->view->allowEdit = $this->allowEdit;
+        $this->view->allowDelete = $this->allowDelete;
     }
     
     public function deleteAction() {
@@ -261,49 +260,6 @@ abstract class Core_Controller_Action extends Zend_Controller_Action {
         exit;
     }
     
-    public static function allowAdd($userType, $page) {
-        if(!in_array($userType, array(
-            Hotel_Model_Nhanvien::QUAN_TRI,
-            Hotel_Model_Nhanvien::LE_TAN,
-            Hotel_Model_Nhanvien::KINH_DOANH,
-            Hotel_Model_Nhanvien::BUONG_PHONG,
-            Hotel_Model_Nhanvien::KE_TOAN,
-        ))){
-            return FALSE;
-        }
-        $userPermistionActions = Hotel_Model_Nhanvien::permistion[$userType][$page];
-        return in_array('add', $userPermistionActions);
-    }
-
-    public static function allowDelete($userType, $page) {
-        if(!in_array($userType, array(
-            Hotel_Model_Nhanvien::QUAN_TRI,
-            Hotel_Model_Nhanvien::LE_TAN,
-            Hotel_Model_Nhanvien::KINH_DOANH,
-            Hotel_Model_Nhanvien::BUONG_PHONG,
-            Hotel_Model_Nhanvien::KE_TOAN,
-        ))){
-            return FALSE;
-        }
-        
-        $userPermistionActions = Hotel_Model_Nhanvien::permistion[$userType][$page];
-        return in_array('delete', $userPermistionActions);
-    }
-
-    public static function allowEdit($userType, $page) {
-        if(!in_array($userType, array(
-            Hotel_Model_Nhanvien::QUAN_TRI,
-            Hotel_Model_Nhanvien::LE_TAN,
-            Hotel_Model_Nhanvien::KINH_DOANH,
-            Hotel_Model_Nhanvien::BUONG_PHONG,
-            Hotel_Model_Nhanvien::KE_TOAN,
-        ))){
-            return FALSE;
-        }
-        $userPermistionActions = Hotel_Model_Nhanvien::permistion[$userType][$page];
-        return in_array('edit', $userPermistionActions);
-    }
-
     /**
      * HTTP_REFERER is not always present in _SERVER[]
      *
@@ -375,24 +331,6 @@ abstract class Core_Controller_Action extends Zend_Controller_Action {
 
     }
     
-    private function redirectIfNotPermistion() {
-        if ($this->_request->getModuleName() == 'hotel' && $this->_request->getControllerName() != 'index') {
-            $userType = $this->getUserType();
-            $userPermistionPages = array_keys(Hotel_Model_Nhanvien::permistion[$userType]);
-            if(!in_array($this->_request->getControllerName(), $userPermistionPages)){
-                $this->_helper->redirector('index', 'index', 'hotel');
-                exit;
-            }
-            $userPermistionActions = Hotel_Model_Nhanvien::permistion[$userType][$this->_request->getControllerName()];
-            if(!in_array($this->_request->getActionName(), $userPermistionActions)){
-                $this->_helper->redirector('index', 'index', 'hotel');
-                exit;
-            }
-            
-        }
-
-    }
-
     /**
      * khởi tạo lại session ban đầu
      * có nghĩa là 
