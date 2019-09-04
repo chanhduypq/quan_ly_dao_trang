@@ -9,8 +9,8 @@ class Admin_Model_IndexMapper
         try {
             $db = $this->getDB();
             $select = $db->select();
-            $select->from("user", array("*"))
-                    ->where("email=?", $username, "STRING")
+            $select->from("thanh_vien", array("*"))
+                    ->where("dien_thoai=?", $username, "STRING")
                     ->where("password=?", sha1($password), "STRING")
             ;
 
@@ -71,7 +71,7 @@ class Admin_Model_IndexMapper
         $data = array();
         $data['password'] = sha1($newPassword);
         try {
-            $where = $db->quoteInto('email=?', $username, 'STRING');
+            $where = $db->quoteInto('dien_thoai=?', $username, 'STRING');
             $db->update($table_name, $data, $where);
             $auth = Zend_Auth::getInstance();
             $identity = $auth->getIdentity();

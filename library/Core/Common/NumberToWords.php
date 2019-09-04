@@ -1,6 +1,5 @@
-<?php
+<?php 
 /**
- * function common
  * @author Trần Công Tuệ <chanhduypq@gmail.com>
  */
 class Core_Common_NumberToWords 

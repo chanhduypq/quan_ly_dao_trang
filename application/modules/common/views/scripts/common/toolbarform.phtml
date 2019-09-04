@@ -1,0 +1,8 @@
+<?php 
+$module_name = Zend_Controller_Front::getInstance()->getRequest()->getModuleName();
+$controller_name = Zend_Controller_Front::getInstance()->getRequest()->getControllerName();
+?>
+<div class="col-lg-12 col-md-12 toolbar">
+    <img class="icon_manage" onclick="window.location = '<?php echo $this->baseUrl('/' . $module_name . '/' . $controller_name . '/index/page/'.$this->page);?>';" src="<?php echo $this->baseUrl();?>/images/download.jpg"/>
+    <img class="icon_manage" onclick="document.form.submit();" src="<?php echo $this->baseUrl();?>/images/save.jpg"/>
+</div>

@@ -165,6 +165,11 @@ class Core_Form extends Zend_Form
                             $element->setIsEmail(TRUE);
                             $element->setUnique(TRUE, $table_name, $excludeField = $primaryName);
                         }
+                        
+                        if ($column_difinition['PRIMARY']==true){    				
+                                $elementOld=new Core_Form_Element_Hidden("old");
+                                $this->addElement($elementOld);
+    			} 
             }
     		elseif ($column_difinition['DATA_TYPE']=='text'
     				||$column_difinition['DATA_TYPE']=='longtext'
@@ -204,7 +209,10 @@ class Core_Form extends Zend_Form
     		{    			
     			if ($column_difinition['PRIMARY']==true){    				
     				$element=new Core_Form_Element_Hidden($column_difinition['COLUMN_NAME']);
-                                $element->setIsPrimary(true);                                
+                                $element->setIsPrimary(true); 
+                                
+                                $elementOld=new Core_Form_Element_Hidden("old");
+                                $this->addElement($elementOld);
     			}    			
     			else{
     				$element=new Core_Form_Element_Text($column_difinition['COLUMN_NAME']);

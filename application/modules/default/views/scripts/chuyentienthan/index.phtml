@@ -1,0 +1,354 @@
+<?php 
+$items = $this->items;
+$auth = Zend_Auth::getInstance();
+if ($auth->hasIdentity()) {
+    $identity = $auth->getIdentity();
+}
+else{
+    $identity=NULL;
+}
+
+$columns = $this->columns;
+?>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
+<style>
+    td.highlight {
+        background-color: whitesmoke !important;
+    }
+    .center{
+        text-align:left;
+    }
+
+    table{
+        width:100%;
+        max-width:1600px;
+        border-right:1px solid #999;
+    }
+
+    td{
+        text-indent:5px;
+        color:#444;
+        border-bottom:1px solid #bbb;
+        border-left:1px solid #bbb;
+        text-align: center;
+        vertical-align: middle !important;
+    }
+
+    td.left{
+        border-left:1px solid #2e638e;
+    }
+
+    td.right{
+        border-right:1px solid #2e638e;
+    }
+
+    td.bottom{
+        border-bottom:1px solid #2e638e;
+    }
+
+    .grip{
+        width:20px;
+        height:15px;
+        margin-top:-3px;
+        background-image:url('<?php echo $this->baseUrl(); ?>/images/grip.png');
+        margin-left:-5px;
+        position:relative;
+        z-index:88;
+        cursor:e-resize;
+    }
+
+    .grip:hover{
+        background-position-x:-20px;
+    }
+
+    .JCLRLastGrip .grip{
+        background-position-y:-18px;
+        left:-2px;
+    }
+
+    .dragging .grip{
+        background-position-x:-40px;
+    }
+
+    .sampleText{
+        position:relative;
+        width:100%;
+    }
+
+    .dotted{
+        background-image:url('<?php echo $this->baseUrl(); ?>/images/dotted.png');
+        background-repeat:repeat-y;
+    }
+    
+    .cluetip-inner.ui-widget-content.ui-cluetip-content{
+        padding-top: 80px;
+    }
+    .cluetip-close{
+        float: right;
+        background-color: black;
+        border-radius: 5px;
+        padding: 10px;
+        margin-top: -60px;
+        cursor: pointer;
+    }
+    .cluetip-close a{
+        color: white;
+        text-decoration: none;        
+    }
+    .cluetip-close:hover{
+        opacity: 0.5;
+    }
+</style>
+
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.16/css/dataTables.bootstrap.min.css">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <script src="<?php echo $this->baseUrl(); ?>/js/jquery.dataTables.min.js?<?php echo substr(str_shuffle(str_repeat($x='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil(10/strlen($x)) )),1,10);?>"></script>
+    <script src="https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap.min.js"></script>
+    <link href="<?php echo $this->baseUrl('/css/form_search.css'); ?>?<?php echo substr(str_shuffle(str_repeat($x='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil(10/strlen($x)) )),1,10);?>" media="screen" rel="stylesheet" type="text/css" />				 
+    <script src="<?php echo $this->baseUrl(); ?>/js/colResizable-1.6.js?<?php echo substr(str_shuffle(str_repeat($x='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil(10/strlen($x)) )),1,10);?>"></script>
+    <form method="POST" action="<?php echo $this->baseUrl();?>/chuyentienthan">
+        
+        <?php if($this->keyword!=''){?>
+        <div class="row" style="margin-bottom: 20px;">
+            <div class="col-lg-12 col-md-12">
+                <nav class="navbar navbar-default" style="margin-bottom: 5px;border: none;">
+                        <ul class="nav navbar-nav">
+                            <li class="active"><a href="<?php echo $this->baseUrl(); ?>/chuyentienthan">Hiển thị tất cả thông tin như ban đầu</a></li>                        
+                        </ul>
+                </nav>
+            </div>
+        </div>
+        <?php }?>
+        <div class="row">
+            <div class="col-lg-12 col-md-12">
+                <div class="float-right collapse  dx-search">
+                    <div class="input-group">
+                        <input class="form-control dx-search-input" type="text" name="keyword" value="<?php echo $this->keyword;?>" maxlength="1024" placeholder="Nhập từ khóa vào đây để tìm kiếm" data-clear-input="true">
+                        <div class="input-group-btn">
+                            <button class="btn btn-secondary dx-clear-button" style="display: none;" type="button" data-clear-button="true">
+                                <i class="fa fa-times-circle"></i>
+                            </button>
+                        </div>
+                        <div class="input-group-btn"><button class="btn btn-secondary dx-search-button" type="submit"><i class="fa fa-search"></i></button></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-12 col-md-12">
+                <div class="col-lg-4 col-md-4">
+                    <label>
+                        <input type="radio" name="type" value="title"<?php if($this->type=='title') echo ' checked="checked"';?>/>
+                        Trong tựa đề
+                    </label>
+                </div>
+                <div class="col-lg-4 col-md-4">
+                    <label>
+                        <input type="radio" name="type" value="content"<?php if($this->type=='content') echo ' checked="checked"';?>/>
+                        Trong nội dung chi tiết
+                    </label>
+                </div>
+                <div class="col-lg-4 col-md-4">
+                    <label>
+                        <input type="radio" name="type" value="all"<?php if($this->type=='all') echo ' checked="checked"';?>/>
+                        Vừa trong tựa đề vừa trong nội dung chi tiết
+                    </label>
+                </div>
+            </div>
+        </div>
+    </form>
+<div class="row-fluid">
+    <table class="table table-bordered" id="nanopool-table" style="display: none;width: 100%;">
+            <thead>
+                <?php  
+                $array = array(
+                    'is_tuong_niem_cong_duc_Chu_Phat',
+                    'is_bon_than_thong_ton_tai_suot_kiep',
+                    'is_uy_luc_ai_duc',
+                    'is_Phat_lam_than_rong',
+                    'is_rung_dong_coi_troi_tam_thap_tam',
+                    'is_can_duoc_ke',
+                    'is_can_luu_y',
+                );
+                foreach ($columns as $key => $value){
+                    if (in_array($key, $array)){
+                        echo "<th>$value (".$this->$key.")</th>";
+                    }
+                    else{
+                        echo "<th>$value</th>";
+                    }
+                    
+                }
+                ?>
+                <th>&nbsp;</th>
+            </thead>
+            <tbody>
+                <?php 
+                    foreach ($items as $item){?>
+                    <tr>
+                        
+                        <?php if(in_array('title', array_keys($columns))){?>
+                        <td>
+                            <?php 
+                            $temp = $item['title'];
+                            if (trim($this->keyword)!=""&&(trim($this->type)=="title"||trim($this->type)=="all")){
+                                $temp = str_replace($this->keyword, "<label style='color:red;'>".$this->keyword."</label>", $temp);
+                                $temp = str_replace(mb_strtolower($this->keyword), "<label style='color:red;'>".$this->keyword."</label>", $temp);
+                                $temp = str_replace(mb_strtoupper($this->keyword), "<label style='color:red;'>".$this->keyword."</label>", $temp);
+                                $temp = str_replace(ucfirst($this->keyword), "<label style='color:red;'>".$this->keyword."</label>", $temp);
+                                $temp = str_replace(ucwords($this->keyword), "<label style='color:red;'>".$this->keyword."</label>", $temp);
+                                
+                            }
+                            echo $temp;
+                            ?>
+                        </td>
+                        <?php } if(in_array('content', array_keys($columns))){?>
+                        <td>
+                            <div style="display: none;">
+                                <?php echo nl2br($item['content']);?>
+                            </div>
+                            <?php 
+                            if (trim($this->keyword)!=""){?>
+                                <?php 
+                                $temp = $item['content'];
+                                $pos = strpos($temp, $this->keyword);
+                                if (Core_Common_Numeric::isInteger($pos = strpos($temp, $this->keyword))){
+                                    $temp = substr($temp, $pos);
+                                    $temp = Core_Common_String::cropWords($temp, 10);
+                                    $temp = str_replace($this->keyword, "<label style='color:red;'>".$this->keyword."</label>", $temp);
+                                }
+                                else if (Core_Common_Numeric::isInteger($pos = strpos($temp, mb_strtolower($this->keyword)))){
+                                    $temp = substr($temp, $pos);
+                                    $temp = Core_Common_String::cropWords($temp, 10);
+                                    $temp = str_replace(mb_strtolower($this->keyword), "<label style='color:red;'>".mb_strtolower($this->keyword)."</label>", $temp);
+                                }
+                                else if (Core_Common_Numeric::isInteger($pos = strpos($temp, mb_strtoupper($this->keyword)))){
+                                    $temp = substr($temp, $pos);
+                                    $temp = Core_Common_String::cropWords($temp, 10);
+                                    $temp = str_replace(mb_strtoupper($this->keyword), "<label style='color:red;'>".mb_strtoupper($this->keyword)."</label>", $temp);
+                                }
+                                else if (Core_Common_Numeric::isInteger($pos = strpos($temp, ucfirst($this->keyword)))){
+                                    $temp = substr($temp, $pos);
+                                    $temp = Core_Common_String::cropWords($temp, 10);
+                                    $temp = str_replace(ucfirst($this->keyword), "<label style='color:red;'>".ucfirst($this->keyword)."</label>", $temp);
+                                }
+                                else if (Core_Common_Numeric::isInteger($pos = strpos($temp, ucwords($this->keyword)))){
+                                    $temp = substr($temp, $pos);
+                                    $temp = Core_Common_String::cropWords($temp, 10);
+                                    $temp = str_replace(ucwords($this->keyword), "<label style='color:red;'>".ucwords($this->keyword)."</label>", $temp);
+                                }
+                                else{
+                                    $temp = Core_Common_String::cropWords($temp, 10);
+                                }
+                                echo nl2br($temp);
+                            }
+                            else{
+                                $temp = Core_Common_String::cropWords($item['content'], 10);
+                                echo nl2br($temp);
+                            }
+                            ?>
+                        </td>
+                        <?php } if(in_array('is_tuong_niem_cong_duc_Chu_Phat', array_keys($columns))){?>
+                        <td>
+                            <?php echo $item['is_tuong_niem_cong_duc_Chu_Phat']=="1"?"x":"";?>
+                        </td>
+                        <?php } if(in_array('is_bon_than_thong_ton_tai_suot_kiep', array_keys($columns))){?>
+                        <td>
+                            <?php echo $item['is_bon_than_thong_ton_tai_suot_kiep']=="1"?"x":"";?>
+                        </td>
+                        
+                        <?php } if(in_array('is_uy_luc_ai_duc', array_keys($columns))){?>
+                        <td>
+                            <?php echo $item['is_uy_luc_ai_duc']=="1"?"x":"";?>
+                        </td>
+                        <?php } if(in_array('is_Phat_lam_than_rong', array_keys($columns))){?>
+                        <td>
+                            <?php echo $item['is_Phat_lam_than_rong']=="1"?"x":"";?>
+                        </td>
+                        <?php } if(in_array('is_rung_dong_coi_troi_tam_thap_tam', array_keys($columns))){?>
+                        <td>
+                            <?php echo $item['is_rung_dong_coi_troi_tam_thap_tam']=="1"?"x":"";?>
+                        </td>
+                        <?php } if(in_array('is_can_duoc_ke', array_keys($columns))){?>
+                        <td>
+                            <?php echo $item['is_can_duoc_ke']=="1"?"x":"";?>
+                        </td>
+                        
+                        <?php } if(in_array('is_can_luu_y', array_keys($columns))){?>
+                        <td>
+                            <?php echo $item['is_can_luu_y']=="1"?"x":"";?>
+                        </td>
+                        
+                        <?php }?>
+                        
+                        <td>
+                            <button type="button" class="btn btn-primary btn-lg view_detail" data-toggle="modal" data-target="#contentModal">
+                                Xem chi tiết
+                            </button>
+                        </td>
+                    </tr>
+                    <?php 
+                    }
+                ?>
+            </tbody>
+        </table>
+
+</div>
+    
+<div class="modal fade" id="contentModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel2">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel11">Nội dung chi tiết</h4>
+      </div>
+      <div class="modal-body" id="contentModalBody">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
+      </div>
+    </div>
+  </div>
+</div>     
+<script>
+        var content = '';
+    $(".view_detail").click(function (){
+       content = $(this).parents('tr').find('div').eq(0).html();
+    });
+        $('#contentModal').on('shown.bs.modal', function (e) {
+          $("#contentModalBody").html(content);
+        })
+    $(window).load(function() {
+          $('#nanopool-table').show();
+          var table = $('#nanopool-table').DataTable();
+          $('#nanopool-table_filter').find('input').eq(0).css('width','270px');
+          $('#nanopool-table td').css('text-align','center');
+           $('#nanopool-table tbody').on( 'mouseenter', 'td', function () {
+                    var colIdx = table.cell(this).index().column;
+
+                    $( table.cells().nodes() ).removeClass( 'highlight' );
+                    $( table.column( colIdx ).nodes() ).addClass( 'highlight' );
+                } );
+          <?php 
+          if(is_array($items)&&count($items)>0){?>
+          $("table").colResizable({
+                liveDrag:true, 
+                gripInnerHtml:"<div class='grip'></div>", 
+                draggingClass:"dragging", 
+                resizeMode:'overflow',//'fit'
+                postbackSafe:true,
+                partialRefresh:true
+          });
+          <?php 
+          }
+          ?>
+    });
+    
+    function editItem(img) {
+        jQuery("form#edit-form").find('input[type="hidden"]').eq(0).val(jQuery(img).parent().parent().attr("id")).attr("name", "id");
+        jQuery("form#edit-form").submit();
+
+    }
+    
+</script>

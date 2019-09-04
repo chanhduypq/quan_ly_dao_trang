@@ -50,6 +50,15 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap {
             case 'file': {
                     try {
                         $log->addWriter(new Zend_Log_Writer_Stream($cacheDir . '/' . date('Y-m-d') . '_main.log'));
+                        $logFile = $cacheDir . '/' . date('Y-m-d') . '_main.log';
+                        $ip = $this->get_client_ip();
+                        $content = $_SERVER['HTTP_USER_AGENT'] . ", IP: $ip";
+                        $fp = @fopen($logFile, 'a');
+                        @flock($fp, LOCK_EX);
+                        $old_content = @fread($fp, @filesize($logFile));
+                        @fwrite($fp, $content . "\n" . $old_content);
+                        @flock($fp, LOCK_UN);
+                        @fclose($fp);
                     } catch (Exception $e) {
                         // Check directory
                         if (!@is_dir($cacheDir) &&
@@ -72,10 +81,28 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap {
                     break;
                 }
         }
-
         // Save to registry
         Zend_Registry::set('log', $log);
         return Core::log();
+    }
+
+    private function get_client_ip() {
+        $ipaddress = '';
+        if (isset($_SERVER['HTTP_CLIENT_IP']))
+            $ipaddress = $_SERVER['HTTP_CLIENT_IP'];
+        else if (isset($_SERVER['HTTP_X_FORWARDED_FOR']))
+            $ipaddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        else if (isset($_SERVER['HTTP_X_FORWARDED']))
+            $ipaddress = $_SERVER['HTTP_X_FORWARDED'];
+        else if (isset($_SERVER['HTTP_FORWARDED_FOR']))
+            $ipaddress = $_SERVER['HTTP_FORWARDED_FOR'];
+        else if (isset($_SERVER['HTTP_FORWARDED']))
+            $ipaddress = $_SERVER['HTTP_FORWARDED'];
+        else if (isset($_SERVER['REMOTE_ADDR']))
+            $ipaddress = $_SERVER['REMOTE_ADDR'];
+        else
+            $ipaddress = 'UNKNOWN';
+        return $ipaddress;
     }
 
     protected function _initSession() {
@@ -87,16 +114,16 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap {
         }
 
 //        dòng code này là để tạo file session
-//        Zend_Session::setOptions(array(
-//            'cookie_lifetime' => 864000, // 10 days
-//            'name' => 'onegateid',
-//            'strict' => 'off',
-//            'save_path' => $cacheDir,
-//            'cookie_httponly' => true
-//        ));
+        Zend_Session::setOptions(array(
+            'cookie_lifetime' => 864000, // 10 days
+            'name' => 'onegateid',
+            'strict' => 'off',
+            'save_path' => $cacheDir,
+            'cookie_httponly' => true
+        ));
 
         try {
-            Zend_Session::rememberMe(60*60*24); //timeout session là dòng code này
+            Zend_Session::rememberMe(60 * 60 * 24); //timeout session là dòng code này
             Zend_Session::start();
         } catch (Zend_Session_Exception $e) {
             Zend_Session::destroy(); // ZF doesn't allow to start session after destroying

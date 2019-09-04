@@ -1,5 +1,7 @@
-<?php
-
+<?php 
+/**
+ * @author Trần Công Tuệ <chanhduypq@gmail.com>
+ */
 class Core_Common_String {
 
     /**
@@ -17,7 +19,20 @@ class Core_Common_String {
         $string = implode(" ", $words);
         return $string;
     }
-
+    
+    /**
+     * function common
+     * cắt những khoảng trắng bị dư, và in hoa những kí tự đầu trong mỗi chữ
+     * ví dụ: " tôi tên   là  nguyễn vĂn  Hùng"->"Tôi Tên Là Nguyễn VĂn Hùng"
+     * @param string $string
+     * @return string
+     * @author Trần Công Tuệ <chanhduypq@gmail.com>
+     */
+    public static function ucWords($string) 
+    {
+        return mb_convert_case(Core_Common_String::removeUnnecessarySpaces($string), MB_CASE_TITLE, "UTF-8");
+    }
+    
     /**
      * function common
      * cắt chuỗi nếu chuỗi dài hơn một độ dài cho phép
@@ -61,6 +76,53 @@ class Core_Common_String {
                 }
             }
         }
+        return $string;
+    }
+    
+    /**
+     * function common
+     * cắt chuỗi nếu chuỗi dài hơn một độ dài cho phép
+     * @param string $text 
+     * @param integer $len
+     * @param bool $after cắt phía sau hay cắt phía trước, có nghĩa là [...] nằm phía sau hay nằm phía trước
+     * @return string
+     * @author Trần Công Tuệ <chanhduypq@gmail.com>
+     */
+    public static function cropWords($text, $numberOfWord, $after = true) {
+        if ($text == NULL) {
+            return "";
+        }
+        if (!is_string($text)) {
+            return "";
+        }
+        if (trim($text) == "") {
+            return "";
+        }
+
+        if (Core_Common_Numeric::isInteger($numberOfWord) == FALSE) {
+            return $text;
+        }
+        $text = self::removeUnnecessarySpaces($text);
+        $temp = explode(" ", $text);
+        if ($numberOfWord >= count($temp)) {
+            return $text;
+        }
+        $string = "";
+        if($after){
+            for ($i = 0; $i < $numberOfWord; $i++) {
+                $string .= $temp[$i]." ";
+            }
+            $string .= "...";
+        }
+        else{
+            $temp1 = array();
+            for ($i = 0; $i < $numberOfWord; $i++) {
+                $temp1[] = $temp[count($temp)-1-$i];
+            }
+            $temp1 = array_reverse($temp1);
+            $string = "...".implode(" ", $temp1);
+        }
+        
         return $string;
     }
 

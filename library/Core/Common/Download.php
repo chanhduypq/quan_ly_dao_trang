@@ -1,5 +1,7 @@
-<?php
-
+<?php 
+/**
+ * @author Trần Công Tuệ <chanhduypq@gmail.com>
+ */
 class Core_Common_Download {
 
     /**
@@ -9,7 +11,7 @@ class Core_Common_Download {
      * @param string $path
      * @param string $fileName
      */
-    public static function download($path, $fileName = null) {
+    public static function download($path, $fileName = null, $fileNameForShow = null) {
         if (!is_string($fileName) || trim($fileName) == '') {
             $fileNameForDownload = '';
             $files = scandir($path, 0);
@@ -21,6 +23,14 @@ class Core_Common_Download {
         } else {
             $fileNameForDownload = $fileName;
         }
+        
+        if ($fileNameForShow === null || !is_string($fileNameForShow) || trim($fileNameForShow) == '') {
+            $fileNameForShow = $fileNameForDownload;
+        } 
+        else{
+            $temp = explode(".", $fileNameForDownload);
+            $fileNameForShow .= "." . $temp[count($temp)-1];
+        }
 
         //download được file dung lượng lớn
 //        self::downloadFile($path, $fileNameForDownload);
@@ -29,7 +39,7 @@ class Core_Common_Download {
         //cách này không download được file dung lượng lớn
         header('Content-Description: File Transfer');
         header('Content-Type: application/octet-stream');
-        header('Content-Disposition: attachment; filename="' . $fileNameForDownload . '"');
+        header('Content-Disposition: attachment; filename="' . $fileNameForShow . '"');
         header('Expires: 0');
         header('Cache-Control: must-revalidate');
         header('Pragma: public');

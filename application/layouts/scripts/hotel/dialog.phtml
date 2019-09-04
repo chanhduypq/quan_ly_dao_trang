@@ -1,0 +1,172 @@
+<?php 
+$isLogin = FALSE;
+$auth = Zend_Auth::getInstance();
+if ($auth->hasIdentity() && isset($auth->getIdentity()['type'])) {
+    $isLogin = TRUE;
+}
+?>
+<?php 
+if(!$isLogin){ ?>
+<div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Login</h4>
+      </div>
+      <div class="modal-body">
+        <div id="dialog-form-login1">
+                <div id="thongBaologin" style="padding-left: 100px;color: red;">  
+                </div>
+                <div style="float: left;text-align: right;width: 30%;">username:</div>
+                <div style="float: left;"><input id="username" type="text" name="username"/></div>
+                <div style="clear: both;"></div>
+                <div style="float: left;text-align: right;margin-top: 10px;width: 30%;">password:</div>
+                <div style="float: left;margin-top: 10px;"><input type="password" name="password" id="password1"/></div>
+                <div style="clear: both;"></div>                
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
+        <button type="button" class="btn btn-primary" onclick="subLogin();">Login</button>
+      </div>
+    </div>
+  </div>
+</div>
+<?php 
+}
+else{ ?>
+<div class="modal fade" id="changePassModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel1">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel1">Đổi mật khẩu</h4>
+      </div>
+      <div class="modal-body">
+        <div id="dialog-form1">
+                <div id="thongBao" style="padding-left: 100px;color: red;">  
+                </div>
+                <div style="float: left;text-align: right;">Nhập password cũ:</div>
+                <div style="float: left;"><input id="password" type="password" name="oldPassword"/></div>
+                <div style="clear: both;"></div>
+                <div style="float: left;text-align: right;margin-top: 10px;">Nhập password mới:</div>
+                <div style="float: left;margin-top: 10px;"><input type="password" name="newPassword" id="newPassword"/></div>
+                <div style="clear: both;"></div>
+                <div style="float: left;text-align: right;margin-top: 10px;">Nhập lại password mới:</div>
+                <div style="float: left;margin-top: 10px;"><input type="password" name="confirmNewPassword" id="confirmNewPassword"/></div>
+                <div style="clear: both;"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
+        <button type="button" class="btn btn-primary" onclick="sub();">Đổi</button>
+      </div>
+    </div>
+  </div>
+</div>
+<?php 
+}
+?>
+<script type="text/javascript">
+    function subLogin() {
+        if (!validateLogin()){
+            return;
+        }
+
+        $.ajax({
+            url: '<?php echo $this->baseUrl('/hotel/index/login'); ?>',
+            type: 'POST',
+            async: true,
+            cache: false,
+            data: {username: jQuery('input#username').val(), password: jQuery('input#password1').val()},
+            success: function (data, textStatus, jqXHR) {
+                 if ($.trim(data) == '') {
+                     $("#loginModal").modal("hide");
+                    window.location.reload();
+                } else if ($.trim(data) == 'error') {
+                    jQuery('div#thongBaologin').html('Thông tin đăng nhập không đúng. Vui lòng nhập lại.');
+                }       
+            }
+        });
+    }
+    function validateLogin() {
+
+        if ($.trim($("#username").val()) == '') {
+            $("#username").css('border-color','red').focus();
+            return false;
+        }
+        if ($.trim($("#username").val()).indexOf(" ", 0) != -1) {
+            $("#username").css('border-color','red').focus();
+            return false;
+        }
+        if ($.trim($("#password1").val()) == '') {
+            $("#password1").css('border-color','red').focus();
+            return false;
+        }
+
+        return true;
+    }
+    function sub() {
+        if (!validate()){
+            return;
+        }
+            
+        $.ajax({
+            url: '<?php echo $this->baseUrl('/admin/index/ajaxchangepassword'); ?>',
+            type: 'POST',
+            async: true,
+            cache: false,
+            data: {oldPassword: jQuery('input#password').val(), newPassword: jQuery('input#newPassword').val()},
+            success: function (data, textStatus, jqXHR) {
+                 if ($.trim(data) == '') {
+                    window.location.reload();
+
+                } else if ($.trim(data) == 'error') {
+
+                    jQuery('div#thongBao').html('Nhập không đúng password cũ.');
+                }       
+            }
+        });
+    }
+    function validate() {
+        if ($("#password").val()==""){
+            $("#password").css('border-color','red').focus();
+            return false;
+        }
+        if ($("#newPassword").val()==""){
+            $("#newPassword").css('border-color','red').focus();
+            return false;
+        }
+        if ($("#newPassword").val().indexOf(" ", 0) != -1) {
+            $("#newPassword").css('border-color','red').focus();
+            return false;
+        }
+        if ($("#confirmNewPassword").val() == "") {
+            $("#confirmNewPassword").css('border-color','red').focus();
+            return false;
+        }
+        if ($("#newPassword").val() != $("#confirmNewPassword").val()) {
+            alert("Việc nhập password mới 2 lần không trùng nhau.");
+            $("#newPassword").css('border-color','red').focus();
+            $("#confirmNewPassword").css('border-color','red');
+            return false;
+        }
+        return true;
+    }
+    jQuery(function ($) {
+        
+        $('#dialog-form-login1').keypress(function(e) {
+            if (e.keyCode == $.ui.keyCode.ENTER) {
+              subLogin();
+            }
+        });
+        
+        $('#dialog-form1').keypress(function(e) {
+            if (e.keyCode == $.ui.keyCode.ENTER) {
+              sub();
+            }
+        });
+        
+    });
+</script>

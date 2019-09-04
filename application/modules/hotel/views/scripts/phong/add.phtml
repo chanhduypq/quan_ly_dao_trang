@@ -1,0 +1,25 @@
+<?php 
+echo $this->render('common/message.phtml');
+echo $this->render('common/toolbarform.phtml'); 
+?>
+<form name="form" enctype="multipart/form-data" id="form" action="<?php echo $this->url(); ?>" method="post">
+    <div class="row-fluid" style="margin-top: 10px;">
+        <div class="col-lg-4 col-md-4"></div>
+
+        <div class="col-lg-12 col-md-12">
+            <?php echo $this->form($this, $this->form, 1, $echo_form_tag = FALSE); ?>
+        </div>
+
+    </div>
+</form>   
+
+<script type="text/javascript">
+    
+    jQuery(function ($) {
+        $("form").find("input").eq(0).focus();
+    });
+
+</script>
+
+
+

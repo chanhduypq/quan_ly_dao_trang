@@ -1,0 +1,137 @@
+<link rel="stylesheet" href="<?php echo $this->baseUrl();?>/js/jqwidgets/styles/jqx.base.css" type="text/css" />
+<script type="text/javascript" src="<?php echo $this->baseUrl();?>/js/jqwidgets/jqxcore.js"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl();?>/js/jqwidgets/jqxtree.js"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl();?>/js/jqwidgets/jqxsplitter.js"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl();?>/js/jqwidgets/jqxbuttons.js"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl();?>/js/jqwidgets/jqxpanel.js"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl();?>/js/jqwidgets/jqxlistbox.js"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl();?>/js/jqwidgets/jqxexpander.js"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl();?>/js/jqwidgets/jqxscrollbar.js"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl();?>/js/jqwidgets/demos.js"></script>
+<div id='jqxWidget'>
+    <div id="mainSplitter">
+        <div>
+            <div style="border: none;" id="feedExpander">
+                <div class="jqx-hideborder">
+                    Danh mục</div>
+                <div class="jqx-hideborder jqx-hidescrollbars">
+                    <div class="jqx-hideborder" id='jqxTree'>
+                        
+                        <?php 
+                        if (is_array($this->items) && count($this->items) > 0) {
+                            echoMuc($this->items,$this);
+                        }
+                        ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div id="contentSplitter">
+                <div class="feed-item-list-container" id="feedUpperPanel">
+                    <div class="jqx-hideborder" id="feedListExpander">
+                        <div class="jqx-hideborder" id="feedHeader">
+                        </div>
+                        <div class="jqx-hideborder jqx-hidescrollbars">
+                            <div class="jqx-hideborder" id="feedListContainer">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="feedContentArea">
+                    <div class="jqx-hideborder" id="feedContentExpander">
+                        <div class="jqx-hideborder" id="feedItemHeader">
+                        </div>
+                        <div class="jqx-hideborder jqx-hidescrollbars">
+                            <div class="jqx-hideborder" id="feedItemContent" style="padding-left: 20px;padding-right: 20px;overflow: auto;max-height: 500px;max-width: 800px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var rss = (function ($) {
+            var createWidgets = function () {
+                $('#mainSplitter').jqxSplitter({width: '100%', height: 600, panels: [{size: 200, min: 100, collapsible: false}, {min: 200, size: 400, collapsible: false}]});
+                $('#contentSplitter').jqxSplitter({width: '100%', height: '100%', orientation: 'horizontal', panels: [{size: 50, min: 50, collapsible: false}, {min: 100, collapsible: false}]});
+                $("#feedExpander").jqxExpander({toggleMode: 'none', showArrow: false, width: "100%", height: "100%",
+                    initContent: function () {
+                        $('#jqxTree').jqxTree({height: '100%', width: '100%',toggleMode: 'click'});
+                    }
+                });
+                $("#feedContentExpander").jqxExpander({toggleMode: 'none', showArrow: false, width: "100%", height: "100%", initContent: function () {
+                        $('#feedItemContent').jqxPanel({width: '100%', height: '100%'});
+                    }
+                });
+                $("#feedListExpander").jqxExpander({
+                    toggleMode: 'none', showArrow: false, width: "100%", height: "0", initContent: function () {
+                        $('#feedListContainer').jqxListBox({source: ['1'], width: '100%', height: '0'});
+                    }
+                });
+            };
+            var addEventListeners = function () {
+                $('#jqxTree').on('select', function (event) {
+                    var item = $('#jqxTree').jqxTree('getItem', event.args.element);
+                    if(!$(item.element).hasClass('tree_has_content')){
+                        $("#feedListExpander").jqxExpander('setHeaderContent', item.label);
+                        return;
+                    }
+                    id=$(item.element).attr('data-id');
+                    $.ajax({
+                        url:'<?php echo $this->baseUrl();?>/quanlykinhnikaya/getcontent/id/'+id,
+                        type:'GET',
+                        async: true,
+                        cache: false,
+                        success: function (data1, textStatus, jqXHR) {
+                            $("#feedItemContent").html($.trim(data1));
+                            $("#feedListExpander").jqxExpander('setHeaderContent', item.label);
+                        }
+                    });
+                });
+                
+            };
+
+            return {
+                init: function () {
+                    createWidgets();
+                    addEventListeners();
+                }
+            }
+        }(jQuery));
+        rss.init();
+        $("#feedHeader").attr('style','margin-left: 0px; text-align: center;');
+        $(".jqx-expander-header-content").css('float','none').css('text-align','center');
+    });
+</script>
+
+<?php 
+function echoMuc($items,$view) {
+?>
+<ul>
+<?php foreach ($items as $item) { ?>
+    <li title="<?php echo $item['title']; ?>" name_show="<?php echo $item['title']; ?>" data-id="<?php echo $item['id']; ?>" class="<?php if(trim($item['content'])!=""||trim($item['file_name'])!="") echo ' tree_has_content';?>">
+        <?php
+        echo $item['title'];
+        if ($item['number_children'] > 0) {
+            $items1 = array();
+            foreach ($view->items1 as $temp){
+                if ($temp['parent_id'] == $item['id']){
+                    $items1[] = $temp;
+                }
+            }
+            echoMuc($items1,$view);
+            }
+            ?>
+        </li>
+            <?php
+        }
+        ?>
+</ul>
+    <?php 
+}
+?>

@@ -24,6 +24,7 @@ class Admin_Form_Thanhvien extends Core_Form
         $this->getElement('nguoi_gioi_thieu')->setLabel('Người giới thiệu: ');
         
         $this->removeElement("gioi_tinh");
+        $this->removeElement("password");
         $gioi_tinh=new Core_Form_Element_Select('gioi_tinh');
         $gioi_tinh->setLabel('Giới tính: ');
         $gioi_tinh->addMultiOptions(array('Nam'=>'Nam','Nữ'=>'Nữ'))->setValue('Nam')->setSeparator(' ');

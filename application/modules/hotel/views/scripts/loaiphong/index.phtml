@@ -1,0 +1,72 @@
+<?php
+$items = $this->items;
+
+echo $this->render('common/message.phtml');
+echo $this->render('common/toolbarindex.phtml');
+?>        
+<div class="row-fluid list">
+    <table>
+        <thead>
+            <tr>
+                <?php
+                $leftWidth = 100;
+                foreach ($this->infos as $key => $value) {
+                    $leftWidth -= intval($value['width']);
+                    ?>
+                    <th style="text-align: center;width: <?php echo $value['width'] ?>%;"><?php echo $value['label'] ?></th>
+                    <?php
+                }
+                ?>
+                <th style="width: <?php echo $leftWidth; ?>%;">&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <?php
+            foreach ($items as $item) {
+                ?>
+                <tr class="item">
+                    <?php foreach ($this->infos as $key => $value) { ?>
+                        <td>
+                            <?php echo $item[$key]; ?>
+                        </td>
+                        <?php
+                    }
+                    ?>
+                    <td style="text-align: center;">
+                        <?php 
+                        if($this->allowDelete){
+                            if ($item['loaiphong_id'] == "") { ?>
+                                <a class="remove allow" title="Click vào đây để xóa" href="<?php echo $this->baseUrl('/hotel/loaiphong/delete/id/') . $item['id']; ?>">
+                                    <img class="delete question icon_manage" src="<?php echo $this->baseUrl("/images/icon/delete-icon.png"); ?>"/>                                                   
+                                </a>
+                                <?php
+                            } else {
+                                ?>
+                                <a class="remove">
+                                    <img class="delete question icon_manage disabled" src="<?php echo $this->baseUrl("/images/icon/delete-icon.png"); ?>"/>                                                   
+                                </a>
+                            <?php 
+                            }
+                        }
+                        if($this->allowEdit){
+                        ?>
+
+                        <a href="<?php echo $this->baseUrl('/hotel/loaiphong/edit/id/') . $item['id'] . '/page/' . $this->page; ?>">
+                            <img class="edit question icon_manage" title="Click vào đây để sửa" style="cursor: pointer;" src="<?php echo $this->baseUrl("/images/icon/ico_edit.png"); ?>" onclick="editItem(this);"/>                                                   
+                        </a>
+                        <?php 
+                        }
+                        ?>
+                    </td>
+                </tr>
+
+            <?php 
+            }
+            ?>
+        </tbody>
+    </table>
+</div>
+<?php
+echo $this->render('common/paging.phtml');
+?>

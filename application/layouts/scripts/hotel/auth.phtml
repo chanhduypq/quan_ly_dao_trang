@@ -1,0 +1,36 @@
+<?php 
+$auth = Zend_Auth::getInstance();
+if ($auth->hasIdentity() && isset($auth->getIdentity()['type'])) {
+    $identity = $auth->getIdentity();
+    ?>
+    <div class="dropdown" style="float: right;">
+      <button id="dLabel" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <img src="<?php echo $this->baseUrl(); ?>/images/icon/icon-user.png" style="width: 50px;height: 50px;">
+        <span class="caret"></span>
+      </button>
+        <ul class="dropdown-menu" aria-labelledby="dLabel" style="padding: 20px;">
+          <li class="a_li" style="cursor: auto;text-align: center;" id="danh_xung_full_name"><b>
+            <?php 
+            echo $identity['name'];
+            ?></b></li>
+<!--          <li class="a_li" id="changePassword" style="margin: 10px;">
+                <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#changePassModal">
+                  Đổi mật khẩu
+                </button>
+        </li>-->
+        <li style="margin: 10px;" onclick="window.location = '<?php echo $this->baseUrl('/'.Zend_Controller_Front::getInstance()->getRequest()->getModuleName().'/index/logout'); ?>';" class="a_li">
+            <button type="button" class="btn btn-primary btn-lg">
+              Sign out
+            </button>
+        </li>
+      </ul>
+    </div>
+    <?php
+} else {
+?>
+        <button style="float: right;margin-right: 10px;" type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#loginModal">
+          Sign in
+        </button>
+    <?php 
+}
+?>

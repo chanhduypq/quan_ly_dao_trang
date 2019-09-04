@@ -1,0 +1,491 @@
+<link rel="stylesheet" href="<?php echo $this->baseUrl();?>/js/jqwidgets/styles/jqx.base.css" type="text/css" />
+<script type="text/javascript" src="<?php echo $this->baseUrl();?>/js/jqwidgets/demos.js"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl();?>/js/jqwidgets/jqxcore.js"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl();?>/js/jqwidgets/jqxbuttons.js"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl();?>/js/jqwidgets/jqxscrollbar.js"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl();?>/js/jqwidgets/jqxpanel.js"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl();?>/js/jqwidgets/jqxtree.js"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl();?>/js/jqwidgets/jqxcheckbox.js"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl();?>/js/jqwidgets/jqxmenu.js"></script>
+<script type="text/javascript">
+    var level,id,file_name;
+    var contextMenuAll,contextMenu,contextMenuRoot;
+</script>
+<script type="text/javascript">
+    function deleteItem(controller_name,level,id){
+        $.ajax({
+            url:'<?php echo $this->baseUrl();?>/'+controller_name+'/delete',
+            type:'POST',
+            data:{'level':level,'id':id},
+            async: true,
+            success: function (data1, textStatus, jqXHR) {
+                
+            }
+        });
+    }
+    function addMucCon(controller_name,name_element) {
+      if ( $.trim($(name_element).val())!='' ) {
+          var formData = new FormData();
+          if($('#file').val()!=""){
+              formData.append('file', $('#file')[0].files[0]);
+          }
+          formData.append('level', level);
+          formData.append('id', id);
+          $('#dialog-form input, #dialog-form textarea').each(
+                function(index){  
+                    var input = $(this);
+                    if(typeof input.attr('type') != "undefined" && input.attr('type')=="checkbox"){
+                        if(input.is(":checked")){
+                            formData.append(input.attr('name'), '1');
+                        }
+                        else{
+                            formData.append(input.attr('name'), '0');
+                        }
+                    }
+                    else{
+                        formData.append(input.attr('name'), input.val());
+                    }
+                    
+                }
+            );
+          var temp =$.trim($(name_element).val());
+          var selectedItem = $('#jqxTree').jqxTree('selectedItem');
+            if (selectedItem != null) {
+                var id_new;
+                
+                $.ajax({
+                    url:'<?php echo $this->baseUrl();?>/'+controller_name+'/add',
+                    type:'POST',
+                    data: formData, 
+                    async: true,
+                    processData: false, 
+                    contentType: false, 
+                    success: function (data1, textStatus, jqXHR) {
+                        $('#jqxTree').jqxTree('addTo', { label: temp }, selectedItem.element);
+
+                        lis=$("#jqxTree li");
+                        for(i=0;i<lis.length;i++){
+                            if($(lis[i]).find('div').eq(0).html()==temp){
+                                $(lis[i]).addClass('level_1').addClass('id_'+$.trim(data1));
+                            }
+                        }
+                        id_new=data1;
+                        attachContextMenu();
+                    }
+                });
+            }
+          dialog.dialog( "close" );
+
+      }
+      else{
+          alert('Vui lòng nhập tên mục');
+          $(name_element).focus();
+      }
+
+    }
+    
+    function editItem(controller_name,name_element) {
+      var formData = new FormData();
+          formData.append('file', $('#file_edit')[0].files[0]);
+          formData.append('id', id);
+          $('#dialog-form-edit input, #dialog-form-edit textarea').each(
+                function(index){  
+                    var input = $(this);
+                    if(input.attr('type')=="checkbox"){
+                        if(input.is(":checked")){
+                            formData.append(input.attr('name'), '1');
+                        }
+                        else{
+                            formData.append(input.attr('name'), '0');
+                        }
+                    }
+                    else{
+                        formData.append(input.attr('name'), input.val());
+                    }
+                    
+                }
+            );
+      if ( $.trim($(name_element).val())!='' ) {
+          var selectedItem = $('#jqxTree').jqxTree('selectedItem');
+          var temp =$.trim($(name_element).val());
+            if (selectedItem != null) {
+                
+                $.ajax({
+                    url:'<?php echo $this->baseUrl();?>/'+controller_name+'/edit',
+                    type:'POST',
+                    data: formData, 
+                    async: true,
+                    processData: false, 
+                    contentType: false,
+                    success: function (data1, textStatus, jqXHR) {
+                        $('#jqxTree').jqxTree('updateItem',selectedItem.element, { label: temp } );
+                        attachContextMenu();
+                    }
+                });
+            }
+          dialogEdit.dialog( "close" );
+
+      }
+      else{
+          alert('Vui lòng nhập tên mục');
+          $(name_element).focus();
+      }
+
+    }
+    
+    function isRightClick(event) {
+        var rightclick;
+        if (!event) var event = window.event;
+        if (event.which) rightclick = (event.which == 3);
+        else if (event.button) rightclick = (event.button == 2);
+        return rightclick;
+    }
+    var attachContextMenu = function () {
+        // open the context menu when the user presses the mouse right button.
+        $("#jqxTree li").on('mousedown', function (event) {
+            var target = $(event.target).parents('li:first')[0];
+            temp=$(this).attr('class').split(' ');
+            file_name = $(this).attr('data-file');
+            for(i=0;i<temp.length;i++){
+                if(temp[i].indexOf('id_')!=-1){
+                    temp1=temp[i].split('_');
+                    id=temp1[1];
+                    $("#id").val(id);
+                }
+                else if(temp[i].indexOf('level_')!=-1){
+                    temp1=temp[i].split('_');
+                    level=temp1[1];
+                    $("#level").val(level);
+                }
+            }
+
+            var rightClick = isRightClick(event);
+            if (rightClick && target != null) {
+                $("#jqxTree").jqxTree('selectItem', target);
+                var scrollTop = $(window).scrollTop();
+                var scrollLeft = $(window).scrollLeft();
+
+                if(level=='0'){
+                    contextMenuRoot.jqxMenu('open', parseInt(event.clientX) + 5 + scrollLeft, parseInt(event.clientY) + 5 + scrollTop);
+                }
+                else{
+                    if(typeof file_name != 'undefined'){
+                        $("#download").show();
+                    }
+                    else{
+                        $("#download").hide();
+                    }
+                    contextMenuAll.jqxMenu('open', parseInt(event.clientX) + 5 + scrollLeft, parseInt(event.clientY) + 5 + scrollTop);
+                }
+
+                return false;
+            }
+        });
+    }
+</script>
+<script type="text/javascript">
+        
+    var clickedItem = null;
+    var dialog,dialogEdit;
+ 
+    $(document).ready(function () {
+        // Create jqxTree
+        $('#jqxTree').jqxTree({ height: '320px', width: '100%',toggleMode: 'click' });
+        $('#jqxTree').css('visibility', 'visible');
+        
+        contextMenuAll = $("#jqxMenuAll").jqxMenu({ width: '200px',  height: 'auto', autoOpenPopup: false, mode: 'popup' });
+        contextMenuRoot = $("#jqxMenuRoot").jqxMenu({ width: '200px',  height: 'auto', autoOpenPopup: false, mode: 'popup' });
+
+        attachContextMenu();
+        $("#jqxMenuRoot").on('itemclick', function (event) {
+            var item = $.trim($(event.args).text());
+            switch (item) {
+                case "Thêm mục con":
+                    dialog.dialog( "open" );
+                    break;
+                case "download":
+                    var selectedItem = $('#jqxTree').jqxTree('selectedItem');
+                    var file_name_fo_show = selectedItem.label;
+                    window.location = '<?php echo $this->baseUrl();?>/quanlybaigiang/download/file_name/'+file_name+'/file_name_fo_show/'+file_name_fo_show;
+                    break;    
+            }
+        });
+        
+        $("#jqxMenuAll").on('itemclick', function (event) {
+            var item = $.trim($(event.args).text());
+            switch (item) {
+                case "Thêm mục con":
+                    dialog.dialog( "open" );
+                    break;
+                case "Sửa mục này":
+                    dialogEdit.dialog( "open" );
+                    var selectedItem = $('#jqxTree').jqxTree('selectedItem');
+                    $("#name_edit").val(selectedItem.label);
+                    $.ajax({
+                        url:'<?php echo $this->baseUrl();?>/quanlybaigiang/getitem/id/'+id,
+                        type:'GET',
+                        async: true,
+                        success: function (data1, textStatus, jqXHR) {
+                            json = $.parseJSON(data1);
+                            $("#content_edit").val($.trim(json.content));
+                            $("#luu_y_edit").val($.trim(json.luu_y));
+                            $("#dia_diem_giang_edit").val($.trim(json.dia_diem_giang));
+                            $("#thoi_gian_giang_edit").val($.trim(json.thoi_gian_giang));
+                            if(json.is_public=="1"){
+                                $("#is_public_edit").prop("checked",true);
+                            }
+                            else{
+                                $("#is_public_edit").prop("checked",false);
+                            }
+                            if(json.is_chu_de=="1"){
+                                $("#is_chu_de_edit").prop("checked",true);
+                            }
+                            else{
+                                $("#is_chu_de_edit").prop("checked",false);
+                            }
+                            if(json.is_bai_giang=="1"){
+                                $("#is_bai_giang_edit").prop("checked",true);
+                            }
+                            else{
+                                $("#is_bai_giang_edit").prop("checked",false);
+                            }
+                            if(json.is_long_ton_kinh_phat=="1"){
+                                $("#is_long_ton_kinh_phat_edit").prop("checked",true);
+                            }
+                            else{
+                                $("#is_long_ton_kinh_phat_edit").prop("checked",false);
+                            }
+                        }
+                    });
+                    break;
+                case "Xóa mục này":
+                    deleteItem('quanlybaigiang',level,id);
+                    var selectedItem = $('#jqxTree').jqxTree('selectedItem');
+                    if (selectedItem != null) {
+                        $('#jqxTree').jqxTree('removeItem', selectedItem.element);
+                        attachContextMenu();
+                    }
+                    break;
+                case "download":
+                    var selectedItem = $('#jqxTree').jqxTree('selectedItem');
+                    var file_name_fo_show = selectedItem.label;
+                    window.location = '<?php echo $this->baseUrl();?>/quanlybaigiang/download/file_name/'+file_name+'/file_name_fo_show/'+file_name_fo_show;
+                    break;   
+            }
+        });
+        // disable the default browser's context menu.
+        $(document).on('contextmenu', function (e) {
+            if ($(e.target).parents('.jqx-tree').length > 0) {
+                return false;
+            }
+            return true;
+        });
+
+        
+        
+        dialog = $( "#dialog-form" ).dialog({
+            open: function( event, ui ) {
+                $("li.has_children").css('z-index','0');
+                $("#file").val('');
+				$("#name").focus();
+//                var selectedItem = $('#jqxTree').jqxTree('selectedItem');
+//                var a = $(selectedItem.element)[0];
+//                if($(selectedItem.element).find('li').length==0){
+//                    $("#name").val($.trim($(a).find('div').eq(0).html()) + " a");
+//                }
+//                else{
+//                    $("#name").val($.trim($(a).find('div').eq(0).html()) + " b");
+//                }
+                
+
+                },
+              autoOpen: false,
+              height: 600,
+              width: 850,
+              modal: true,
+              buttons: [
+                {
+                  text: "Ok",
+                  click: function() {
+                    addMucCon('quanlybaigiang',$("#name"))
+                  }
+                },
+                {
+                  text: "Hủy",
+                  click: function() {
+                    dialog.dialog( "close" );
+                  }
+                }
+              ],
+              close: function() {
+                  $("#name").val('');
+                  $("li.has_children").css('z-index','200');
+              }
+            });
+            
+            dialogEdit = $( "#dialog-form-edit" ).dialog({
+                open: function( event, ui ) {
+                    $("li.has_children").css('z-index','0');
+                    $("#file_edit").val('');
+					$("#name_edit").focus();
+                },
+              autoOpen: false,
+              height: 600,
+              width: 850,
+              modal: true,
+              buttons: [
+                {
+                  text: "Ok",
+                  click: function() {
+                    editItem('quanlybaigiang',$("#name_edit"));
+                  }
+                },
+                {
+                  text: "Hủy",
+                  click: function() {
+                    dialogEdit.dialog( "close" );
+                  }
+                }
+              ],
+              close: function() {
+                  $("#name_edit").val('');
+                  $("li.has_children").css('z-index','200');
+              }
+            });
+
+    });
+</script>
+<div id="dialog-form" title="Thêm mục con">
+    <fieldset>
+        <label for="is_public">Công khai: </label>
+        <input type="checkbox" id="is_public" name="is_public" checked value="1"><br>
+      <label for="is_long_ton_kinh_phat">Lòng tôn kính Phật: </label>
+      <input type="checkbox" id="is_long_ton_kinh_phat" name="is_long_ton_kinh_phat" value="1"><br>
+      <label for="is_chu_de">Chủ đề: </label>
+      <input type="checkbox" id="is_chu_de" name="is_chu_de" value="1"><br>
+      <label for="is_bai_giang">Bài giảng: </label>
+      <input type="checkbox" id="is_bai_giang" name="is_bai_giang" value="1">
+      <br>
+      <label for="dia_diem_giang">Địa điểm giảng: </label>
+      <input type="text" id="dia_diem_giang" class="text ui-widget-content ui-corner-all" name="dia_diem_giang">
+      <br>
+      <label for="thoi_gian_giang">Thời gian giảng: </label>
+      <input type="text" id="thoi_gian_giang" class="text ui-widget-content ui-corner-all" name="thoi_gian_giang">
+      <br>
+      <label for="name">Tựa đề: </label>
+      <input style="width:700px;" type="text" name="title" id="name" class="text ui-widget-content ui-corner-all">
+      <br>
+      <input type="file" name="file" id="file"/>
+      <label for="content" style="float: left;">Nội dung: </label>
+      <textarea id="content" name="content" cols="70" rows="5" style="float: left;"></textarea>
+      <div style="clear: both;"></div>
+      <br>
+      <label for="luu_y" style="float: left;">Lưu ý: </label>
+      <textarea id="luu_y" cols="70" rows="20" style="float: left;" name="luu_y"></textarea>
+      
+      <input type="hidden" name="id" id="id">
+ 
+      <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+    </fieldset>
+</div>
+
+<div id="dialog-form-edit" title="Sửa">
+    <fieldset>
+        <label for="is_public_edit">Công khai: </label>
+      <input type="checkbox" id="is_public_edit" name="is_public"><br>
+      <label for="is_long_ton_kinh_phat_edit">Lòng tôn kính Phật: </label>
+      <input type="checkbox" id="is_long_ton_kinh_phat_edit" name="is_long_ton_kinh_phat"><br>
+      <label for="is_chu_de_edit">Chủ đề: </label>
+      <input type="checkbox" id="is_chu_de_edit" name="is_chu_de"><br>
+      <label for="is_bai_giang_edit">Bài giảng: </label>
+      <input type="checkbox" id="is_bai_giang_edit" name="is_bai_giang">
+      <br>
+      <label for="dia_diem_giang_edit">Địa điểm giảng: </label>
+      <input type="text" id="dia_diem_giang_edit" class="text ui-widget-content ui-corner-all" name="dia_diem_giang">
+      <br>
+      <label for="thoi_gian_giang_edit">Thời gian giảng: </label>
+      <input type="text" id="thoi_gian_giang_edit" class="text ui-widget-content ui-corner-all" name="thoi_gian_giang">
+      <br>
+      <label for="name_edit">Tựa đề: </label>
+      <input style="width:700px;" type="text" name="title" id="name_edit" class="text ui-widget-content ui-corner-all">
+      <input type="hidden" name="id_edit" id="id_edit">
+      <br>
+      <input type="file" name="file" id="file_edit"/>
+      <label for="content_edit" style="float: left;">Nội dung: </label>
+      <textarea id="content_edit" name="content" cols="70" rows="5" style="float: left;"></textarea>
+      <div style="clear: both;"></div>
+      <br>
+      <label for="luu_y_edit" style="float: left;">Lưu ý: </label>
+      <textarea id="luu_y_edit" cols="70" rows="20" style="float: left;" name="luu_y"></textarea>
+      
+ 
+      <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+    </fieldset>
+</div>
+
+
+<div class="row-fluid" style="padding-top:20px;margin-bottom: 50px;">
+
+    <div class="col-lg-12 col-md-12">
+        <div id='jqxWidget'>
+            <div id='jqxTree''>
+                <ul>
+                    <li id='home' class="id_0 level_0" item-selected='true'>
+                        <?php 
+                        echo 'Tất cả';
+                        if(is_array($this->items)&&count($this->items)>0){
+                            echoMuc($this->items,$this);
+                        }
+                        ?>
+                    </li>
+                    
+                </ul>
+            </div>
+            <div id='jqxMenuRoot'>
+                <ul>
+                    <li>Thêm mục con</li>
+                </ul>
+            </div>
+            <div id='jqxMenuAll'>
+                <ul>
+                    <li>Thêm mục con</li>
+                    <li>Sửa mục này</li>
+                    <li>Xóa mục này</li>
+                    <li id="download">download</li>
+                </ul>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<?php 
+function echoMuc($items,$view){?>
+    <ul>
+        <?php                     
+        foreach ($items as $item){?>
+        <li class="id_<?php echo $item['id'];?>  level_1<?php if(trim($item['content'])!="") echo ' tree_has_content'; if(trim($item['file_name'])!="") echo ' tree_has_file';?>"<?php if(trim($item['file_name'])!="") echo ' data-file="'.trim($item['file_name']).'"';?>>
+                <?php 
+                echo $item['title'];
+                if($item['number_children'] > 0){
+                    $items1 = array();
+                    foreach ($view->items1 as $temp){
+                        if ($temp['parent_id'] == $item['id']){
+                            $items1[] = $temp;
+                        }
+                    }
+                    
+                    echoMuc($items1,$view);
+                    ?>
+            <?php 
+
+                }
+                ?>
+            </li>
+        <?php 
+        }
+        ?>
+    </ul>
+<?php 
+}
+?>

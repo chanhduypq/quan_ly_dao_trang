@@ -46,6 +46,10 @@ $columns=$this->columns;
         &nbsp;&nbsp;&nbsp;email
     </label>
     <label>
+        <input value="ten_facebook" name="columns[]" type="checkbox"<?php if(in_array('ten_facebook', $columns)) echo ' checked="checked"';?>/>
+        &nbsp;&nbsp;&nbsp;tên hiển thị trên facebook
+    <label>
+    <label>
         <input value="facebook" name="columns[]" type="checkbox"<?php if(in_array('facebook', $columns)) echo ' checked="checked"';?>/>
         &nbsp;&nbsp;&nbsp;facebook
     <label>

@@ -1,5 +1,7 @@
-<?php
-
+<?php 
+/**
+ * @author Trần Công Tuệ <chanhduypq@gmail.com>
+ */
 class Core_Common_File {
 
     /**
@@ -51,6 +53,21 @@ class Core_Common_File {
         require_once 'String.php';
         $fileName = Core_Common_String::utf8convert($fileName);
         return $fileName;
+    }
+
+    /**
+     * function common
+     * @author Trần Công Tuệ <chanhduypq@gmail.com>
+     * @param string $fileName
+     * @return string
+     */
+    public static function getUniqidFileName($fileName) {
+        if ($fileName == null || (!is_string($fileName)) || trim($fileName) == "" || strpos($fileName, ".") === FALSE) {
+            return $fileName;
+        }
+        $array = @explode(".", $fileName);
+        $extension = $array[count($array) - 1];
+        return sprintf('_%s.' . $extension, uniqid(md5(time()), true));
     }
 
 }

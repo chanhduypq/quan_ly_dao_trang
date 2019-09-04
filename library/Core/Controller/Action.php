@@ -91,6 +91,15 @@ abstract class Core_Controller_Action extends Zend_Controller_Action {
      * @var string
      */
     public $renderScript = NULL;
+    public $isInputForPrimary = false;
+    public $primaryFieldName = 'id';
+    public $infos = array();
+    
+    public $allowAdd = true;
+    public $allowDelete = true;
+    public $allowEdit = true;
+
+
 
     /**
      *  Main init
@@ -99,6 +108,7 @@ abstract class Core_Controller_Action extends Zend_Controller_Action {
         parent::init();
         $this->setLayout();
         $this->redirectIfNotLogin();
+        $this->redirectIfNotPermistion();
 
         set_time_limit(2000);
 
@@ -122,8 +132,6 @@ abstract class Core_Controller_Action extends Zend_Controller_Action {
         }
     }
 
-    
-
     public function postDispatch() {
         parent::postDispatch();
         if ($this->_request->getActionName() == 'index') {
@@ -136,6 +144,17 @@ abstract class Core_Controller_Action extends Zend_Controller_Action {
             $this->processForDeleteAction();
         }
     }
+    
+    public function preDispatch() {
+        parent::preDispatch();
+        $this->view->allowAdd = $this->allowAdd = Core_Controller_Action::allowAdd($this->getUserType(), $this->_request->getControllerName());
+        $this->view->allowEdit = $this->allowEdit = Core_Controller_Action::allowEdit($this->getUserType(), $this->_request->getControllerName());
+        $this->view->allowDelete = $this->allowDelete = Core_Controller_Action::allowDelete($this->getUserType(), $this->_request->getControllerName());
+    }
+    
+    public function deleteAction() {
+        
+    }
 
     public function getUserId() {
         $auth = Zend_Auth::getInstance();
@@ -144,6 +163,16 @@ abstract class Core_Controller_Action extends Zend_Controller_Action {
         } else {
             $identity = $auth->getIdentity();
             return $identity['id'];
+        }
+    }
+    
+    public function getUserType() {
+        $auth = Zend_Auth::getInstance();
+        if (!$auth->hasIdentity()) {
+            return '';
+        } else {
+            $identity = $auth->getIdentity();
+            return isset($identity['type'])?$identity['type']:'';
         }
     }
 
@@ -219,6 +248,62 @@ abstract class Core_Controller_Action extends Zend_Controller_Action {
         $this->_helper->viewRenderer->setNoRender(true);
     }
 
+    public function getItem($tableName, $id) {
+        $sql = "SELECT * from $tableName where id = $id";
+        $item = Core_Db_Table::getDefaultAdapter()->fetchRow($sql);
+        return Zend_Json::encode($item);
+    }
+
+    public function getContent($tableName, $id) {
+        $sql = "SELECT * from $tableName where id = $id";
+        $item = Core_Db_Table::getDefaultAdapter()->fetchRow($sql);
+        echo nl2br($item["content"]);
+        exit;
+    }
+    
+    public static function allowAdd($userType, $page) {
+        if(!in_array($userType, array(
+            Hotel_Model_Nhanvien::QUAN_TRI,
+            Hotel_Model_Nhanvien::LE_TAN,
+            Hotel_Model_Nhanvien::KINH_DOANH,
+            Hotel_Model_Nhanvien::BUONG_PHONG,
+            Hotel_Model_Nhanvien::KE_TOAN,
+        ))){
+            return FALSE;
+        }
+        $userPermistionActions = Hotel_Model_Nhanvien::permistion[$userType][$page];
+        return in_array('add', $userPermistionActions);
+    }
+
+    public static function allowDelete($userType, $page) {
+        if(!in_array($userType, array(
+            Hotel_Model_Nhanvien::QUAN_TRI,
+            Hotel_Model_Nhanvien::LE_TAN,
+            Hotel_Model_Nhanvien::KINH_DOANH,
+            Hotel_Model_Nhanvien::BUONG_PHONG,
+            Hotel_Model_Nhanvien::KE_TOAN,
+        ))){
+            return FALSE;
+        }
+        
+        $userPermistionActions = Hotel_Model_Nhanvien::permistion[$userType][$page];
+        return in_array('delete', $userPermistionActions);
+    }
+
+    public static function allowEdit($userType, $page) {
+        if(!in_array($userType, array(
+            Hotel_Model_Nhanvien::QUAN_TRI,
+            Hotel_Model_Nhanvien::LE_TAN,
+            Hotel_Model_Nhanvien::KINH_DOANH,
+            Hotel_Model_Nhanvien::BUONG_PHONG,
+            Hotel_Model_Nhanvien::KE_TOAN,
+        ))){
+            return FALSE;
+        }
+        $userPermistionActions = Hotel_Model_Nhanvien::permistion[$userType][$page];
+        return in_array('edit', $userPermistionActions);
+    }
+
     /**
      * HTTP_REFERER is not always present in _SERVER[]
      *
@@ -260,13 +345,13 @@ abstract class Core_Controller_Action extends Zend_Controller_Action {
     }
 
     private function setLayout() {
-//        if ($this->_request->getModuleName() == 'admin') {
-//            $option = array('layout' => 'admin');
-//        } else {
-//            $option = array('layout' => 'index');
-//        }
-        
-        $option = array('layout' => 'index');
+        if ($this->_request->getModuleName() == 'hotel') {
+            $option = array('layout' => 'hotel');
+        } else {
+            $option = array('layout' => 'index');
+        }
+
+//        $option = array('layout' => 'index');
 
         $layout = Zend_Layout::getMvcInstance();
         $layout->setOptions($option);
@@ -278,47 +363,34 @@ abstract class Core_Controller_Action extends Zend_Controller_Action {
     }
 
     private function redirectIfNotLogin() {
-        if ($this->_request->getModuleName() == 'admin') {
-            if ($this->_request->getControllerName() != 'index') {
-                $auth = Zend_Auth::getInstance();
-                if (false){//!$auth->hasIdentity()) {
-                    $this->turnSessionPrevController();
-                    $this->_helper->redirector('index', 'index', 'admin');
-                } else {
-                    $identity = $auth->getIdentity();
-                    if (false){//!isset($identity['user']) || $identity['user'] != 'admin') {
-                        $this->turnSessionPrevController();
-                        $this->_helper->redirector('index', 'index', 'admin');
-                    }
-                }
-            }
-        } 
-        else {
-            if ($this->_request->getControllerName() == 'excel') {
-                $auth = Zend_Auth::getInstance();
-                if (!$auth->hasIdentity()) {
-                    $this->_helper->redirector('index', 'index', 'default');
-                }
-                else{
-                    $identity = $auth->getIdentity();
-                    if($identity['is_upload']!='1'){
-                        $this->_helper->redirector('index', 'index', 'default');
-                    }
-                }
-            }
-            else if ($this->_request->getControllerName() == 'thongke') {
-                $auth = Zend_Auth::getInstance();
-                if (!$auth->hasIdentity()) {
-                    $this->_helper->redirector('index', 'index', 'default');
-                }
-                else{
-                    $identity = $auth->getIdentity();
-                    if($identity['is_thongke']!='1'){
-                        $this->_helper->redirector('index', 'index', 'default');
-                    }
-                }
+        $auth = Zend_Auth::getInstance();
+        if (!$auth->hasIdentity() && $this->_request->getControllerName() != 'index') {
+            $this->_helper->redirector('index', 'index', $this->_request->getModuleName());
+        } else {
+            $identity = $auth->getIdentity();
+            if (isset($identity['type']) && $this->_request->getModuleName() == 'default') {
+                $this->_helper->redirector('index', 'index', 'hotel');
             }
         }
+
+    }
+    
+    private function redirectIfNotPermistion() {
+        if ($this->_request->getModuleName() == 'hotel' && $this->_request->getControllerName() != 'index') {
+            $userType = $this->getUserType();
+            $userPermistionPages = array_keys(Hotel_Model_Nhanvien::permistion[$userType]);
+            if(!in_array($this->_request->getControllerName(), $userPermistionPages)){
+                $this->_helper->redirector('index', 'index', 'hotel');
+                exit;
+            }
+            $userPermistionActions = Hotel_Model_Nhanvien::permistion[$userType][$this->_request->getControllerName()];
+            if(!in_array($this->_request->getActionName(), $userPermistionActions)){
+                $this->_helper->redirector('index', 'index', 'hotel');
+                exit;
+            }
+            
+        }
+
     }
 
     /**
@@ -351,7 +423,7 @@ abstract class Core_Controller_Action extends Zend_Controller_Action {
 
         $auth->getStorage()->write($identity);
     }
-    
+
     private function processForIndexAction() {
         $paginator = new Zend_Paginator(new Zend_Paginator_Adapter_Null($this->total));
 
@@ -363,6 +435,8 @@ abstract class Core_Controller_Action extends Zend_Controller_Action {
         $this->view->limit = $this->limit;
         $this->view->total = $this->total;
         $this->view->page = $this->page;
+        $this->view->primaryFieldName = $this->primaryFieldName;
+        $this->view->infos = $this->infos;
         if (!isset($this->view->message)) {
             $this->view->message = $this->getMessage();
         }
@@ -373,9 +447,10 @@ abstract class Core_Controller_Action extends Zend_Controller_Action {
             return;
         }
         if ($this->_request->isPost()) {
+            $this->trimAllParams();
             if ($this->form->isValid($this->formData)) {
                 Core_Common_Form::processSpecialInput($this->form, $this->formData);
-                
+                $this->removeKeyNotField();
                 if ($this->model->createRow($this->formData)->save()) {
                     Core::message()->addSuccess('Thêm mới thành công');
                     $this->_helper->redirector('index', $this->_request->getControllerName(), $this->_request->getModuleName(), array('page' => $this->_getParam('page')));
@@ -390,6 +465,112 @@ abstract class Core_Controller_Action extends Zend_Controller_Action {
         if (!isset($this->view->form)) {//nếu trong addAction, chưa có dòng code này: $this->view->form = $this->form;
             $this->view->form = $this->form;
         }
+        $this->view->old = '';
+        $this->processRender();
+    }
+
+    private function processForEditAction() {
+        if ($this->model == NULL || $this->form == NULL) {
+            return;
+        }
+
+        if ($this->_request->isPost()) {
+            $this->trimAllParams();
+            $isExistPrimary = FALSE;
+            if ($this->isInputForPrimary) {
+                $this->form->getElement($this->primaryFieldName)->removeValidator('Db_NoRecordExists');
+                $isExistPrimary = $this->isExistPrimary();
+            }
+
+            if ($this->form->isValid($this->formData) && !$isExistPrimary) {
+                Core_Common_Form::processSpecialInput($this->form, $this->formData);
+                $this->removeKeyNotField();
+
+                $primaryValue = ($this->isInputForPrimary) ? ($this->_getParam('old')) : ($this->formData[$this->primaryFieldName]);
+
+
+                if ($this->model->fetchRow(array(
+                            $this->primaryFieldName . " = ? " => $primaryValue
+                                )
+                        )
+                ) {
+                    $this->model->update($this->formData, array(
+                        $this->primaryFieldName . " = ? " => $primaryValue
+                            )
+                    );
+                    Core::message()->addSuccess('Sửa thành công');
+                } else {
+                    Core::message()->addSuccess('Thông tin này đã được xóa khỏi hệ thống rồi.');
+                }
+
+                $this->_helper->redirector('index', $this->_request->getControllerName(), $this->_request->getModuleName(), array('page' => $this->_getParam('page')));
+            } else {
+                if ($isExistPrimary) {
+                    $this->form->getElement($this->primaryFieldName)->addValidator('Db_NoRecordExists', true, array('table' => $this->model->_name, 'field' => $this->primaryFieldName));
+                    $this->form->getElement($this->primaryFieldName)->getValidator('Db_NoRecordExists')->setMessage($this->form->getElement($this->primaryFieldName)->getLabel() . ' này đã tồn tại rồi.');
+                    $this->form->isValid($this->formData);
+                }
+                $this->form->populate($this->formData);
+            }
+        } else {
+            $row = $this->model->fetchRow(array(
+                $this->primaryFieldName . " = ? " => $this->_getParam($this->primaryFieldName)
+            ));
+            if (!$row) {
+                Core::message()->addSuccess('Thông tin này đã được xóa khỏi hệ thống rồi.');
+                $this->_helper->redirector('index', $this->_request->getControllerName(), $this->_request->getModuleName(), array('page' => $this->_getParam('page')));
+            }
+
+            $this->form->getElement('old')->setValue($this->_getParam($this->primaryFieldName));
+            $this->form->setDefaults($row->toArray());
+        }
+        if (!isset($this->view->form)) {//nếu trong editAction, chưa có dòng code này: $this->view->form = $this->form;
+            $this->view->form = $this->form;
+        }
+        $this->processRender();
+    }
+
+    private function processForDeleteAction() {
+        if ($this->model == NULL) {
+            return;
+        }
+        $this->model->delete(
+                array(
+                    $this->primaryFieldName . " = ? " => $this->_getParam($this->primaryFieldName))
+        );
+        Core::message()->addSuccess('Xóa thành công');
+        $this->_helper->redirector('index', $this->_request->getControllerName(), $this->_request->getModuleName());
+    }
+
+    private function isExistPrimary() {
+        $db = Core_Db_Table::getDefaultAdapter();
+        $select = $db->select();
+
+        $select->from($this->model->_name, array("*"))
+                ->where($this->primaryFieldName . " = ?", $this->formData[$this->primaryFieldName], "STRING")
+        ;
+        $result = $db->fetchRow($select);
+        return (is_array($result) && count($result) > 0 && $this->_getParam('old') != $this->formData[$this->primaryFieldName]);
+    }
+
+    private function removeKeyNotField() {
+        $db = Zend_Db_Table::getDefaultAdapter();
+        $metadata = $db->describeTable($this->model->_name);
+        $keys = array_keys($metadata);
+        foreach ($this->formData as $key => $value) {
+            if (!in_array($key, $keys)) {
+                unset($this->formData[$key]);
+            }
+        }
+    }
+
+    private function trimAllParams() {
+        foreach ($this->formData as $key => $value) {
+            $this->formData[$key] = trim($this->formData[$key]);
+        }
+    }
+
+    private function processRender() {
         if ($this->renderScript == NULL) {//nếu trong addAction, k chỉ định renderScript đến .phtml nào
             try {
                 $this->render('add');
@@ -401,56 +582,6 @@ abstract class Core_Controller_Action extends Zend_Controller_Action {
         } else {
             $this->renderScript($this->renderScript);
         }
-    }
-
-    private function processForEditAction() {
-        if ($this->model == NULL || $this->form == NULL) {
-            return;
-        }
-        
-        if ($this->_request->isPost()) {
-            
-            if ($this->form->isValid($this->formData)) {
-                Core_Common_Form::processSpecialInput($this->form, $this->formData);
-                
-                $this->model->update($this->formData, 'id=' . $this->formData['id']);
-                Core::message()->addSuccess('Sửa thành công');
-                $this->_helper->redirector('index', $this->_request->getControllerName(), $this->_request->getModuleName(), array('page' => $this->_getParam('page')));
-            } else {
-                $this->form->populate($this->formData);
-            }
-        } else {
-            $row = $this->model->fetchRow("id=" . $this->_getParam('id'))->toArray();
-            $this->form->setDefaults($row);
-        }
-        if (!isset($this->view->form)) {//nếu trong editAction, chưa có dòng code này: $this->view->form = $this->form;
-            $this->view->form = $this->form;
-        }
-        if ($this->renderScript == NULL) {//nếu trong editAction, k chỉ định renderScript đến .phtml nào
-            try {
-                $this->render('add');
-            } catch (Exception $e) {
-                if ($e->getCode() == 0) {
-                    $this->renderScript('common/add.phtml');
-                }
-            }
-        } else {
-            $this->renderScript($this->renderScript);
-        }
-    }
-
-    private function processForDeleteAction() {
-        if ($this->model == NULL) {
-            return;
-        }
-        $id = $this->_getParam('id');
-        if (Core_Common_Numeric::isInteger($id) == FALSE) {
-            $this->_helper->redirector('index', $this->_request->getControllerName(), $this->_request->getModuleName());
-            return;
-        }
-        $this->model->delete("id=$id");
-        Core::message()->addSuccess('Xóa thành công');
-        $this->_helper->redirector('index', $this->_request->getControllerName(), $this->_request->getModuleName());
     }
 
 }

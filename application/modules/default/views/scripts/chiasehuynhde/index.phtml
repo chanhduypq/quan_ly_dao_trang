@@ -1,0 +1,224 @@
+<link rel="stylesheet" href="<?php echo $this->baseUrl();?>/js/jqwidgets/styles/jqx.base.css" type="text/css" />
+<script type="text/javascript" src="<?php echo $this->baseUrl();?>/js/jqwidgets/demos.js"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl();?>/js/jqwidgets/jqxcore.js"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl();?>/js/jqwidgets/jqxbuttons.js"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl();?>/js/jqwidgets/jqxscrollbar.js"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl();?>/js/jqwidgets/jqxpanel.js"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl();?>/js/jqwidgets/jqxtree.js"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl();?>/js/jqwidgets/jqxcheckbox.js"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl();?>/js/jqwidgets/jqxmenu.js"></script>
+<script type="text/javascript">
+    var id;
+    var contextMenuAll;
+</script>
+<script type="text/javascript">
+    
+    function isRightClick(event) {
+        var rightclick;
+        if (!event) var event = window.event;
+        if (event.which) rightclick = (event.which == 3);
+        else if (event.button) rightclick = (event.button == 2);
+        return rightclick;
+    }
+    var attachContextMenu = function () {
+        // open the context menu when the user presses the mouse right button.
+        $("#jqxTree li").on('mousedown', function (event) {
+            var target = $(event.target).parents('li:first')[0];
+            id=$(this).attr('data-id');
+            $("#id").val(id);
+            var rightClick = isRightClick(event);
+            if (rightClick && target != null) {
+                $("#jqxTree").jqxTree('selectItem', target);
+                var scrollTop = $(window).scrollTop();
+                var scrollLeft = $(window).scrollLeft();
+                contextMenuAll.jqxMenu('open', parseInt(event.clientX) + 5 + scrollLeft, parseInt(event.clientY) + 5 + scrollTop);
+                return false;
+            }
+        });
+    }
+</script>
+<script type="text/javascript">
+        
+    var clickedItem = null;
+    var dialog,dialogEdit;
+ 
+    $(document).ready(function () {
+        // Create jqxTree
+        $('#jqxTree').jqxTree({ height: '320px', width: '100%' });
+        $('#jqxTree').css('visibility', 'visible');
+        
+        contextMenuAll = $("#jqxMenuAll").jqxMenu({ width: '200px',  height: 'auto', autoOpenPopup: false, mode: 'popup' });
+        attachContextMenu();
+        $("#jqxMenuAll").on('itemclick', function (event) {
+            var item = $.trim($(event.args).text());
+            switch (item) {
+                case "Xem":
+                    dialogEdit.dialog( "open" );
+                    $.ajax({
+                        url:'<?php echo $this->baseUrl();?>/chiasehuynhde/getcontent/id/'+id,
+                        type:'GET',
+                        async: true,
+                        success: function (data1, textStatus, jqXHR) {
+                            temps = $.parseJSON($.trim(data1));
+                            var items = $("#jqxTree1").jqxTree('getItems');
+                            $.each(items, function () {
+                                if ($.inArray($(this.element).attr('data-id'),temps)>=0) {
+                                    $(this.element).find("div.jqx-checkbox-default").find('div').eq(0).find('span').eq(0).addClass('jqx-checkbox-check-checked');
+                                }
+                                else{
+                                    $(this.element).find("div.jqx-checkbox-default").find('div').eq(0).find('span').eq(0).removeClass('jqx-checkbox-check-checked');
+                                }
+                            });  
+                        }
+                    });
+                    break;
+                
+            }
+        });
+        
+        // disable the default browser's context menu.
+        $(document).on('contextmenu', function (e) {
+            if ($(e.target).parents('.jqx-tree').length > 0) {
+                return false;
+            }
+            return true;
+        });
+            
+            dialogEdit = $( "#dialog-form-edit" ).dialog({
+                open: function( event, ui ) {
+                    $("li.has_children").css('z-index','0');
+                    $('#jqxTree1').jqxTree({ height: '800px', width: '100%' , checkboxes: true,toggleMode: 'click'});
+                    $('#jqxTree1').css('visibility', 'visible');
+                },
+              autoOpen: false,
+              height: 600,
+              width: 850,
+              modal: true,
+              buttons: [
+                {
+                  text: "Ok",
+                  click: function() {
+                      var items = $("#jqxTree1").jqxTree('getItems');
+                        var checkedItems = new Array();
+                        $.each(items, function () {
+                            if (this.checked||$(this.element).find("div.jqx-checkbox-default").find('div').eq(0).find('span').eq(0).hasClass('jqx-checkbox-check-checked')) {
+                                checkedItems[checkedItems.length] = $(this.element).attr('data-id');
+                            }
+                        });  
+                        var form = new FormData();                        
+                        form.append("thanhvien_id",id);
+                        form.append("chiase_ids",checkedItems.join(","));
+                        $.ajax({
+                            url:'<?php echo $this->baseUrl();?>/chiasehuynhde/edit',
+                            type:'POST',
+                            processData: false,
+                            contentType: false,
+                            data:form,
+                            async: true,
+                            success: function (data1, textStatus, jqXHR) {
+                                dialogEdit.dialog( "close" );
+                            }
+                        });
+                  }
+                },
+                {
+                  text: "Hủy",
+                  click: function() {
+                    dialogEdit.dialog( "close" );
+                  }
+                }
+              ],
+              close: function() {
+                  $("#name_edit").val('');
+                  $("li.has_children").css('z-index','200');
+              }
+            });
+
+    });
+</script>
+
+<div id="dialog-form-edit" title="Sửa">
+    <fieldset>
+      <input type="hidden" name="id_edit" id="id_edit">
+      
+        <div id='jqxWidget1'>
+            <div id='jqxTree1' style='visibility: hidden; float: left; margin-left: 20px;'>
+                <ul>
+                    <li data-id="-1" id='home1' item-selected='true'>
+                        <?php 
+                        echo 'Tất cả';
+                        if(is_array($this->itemChiaSes)&&count($this->itemChiaSes)>0){
+                            echoMuc1($this->itemChiaSes,$this);
+                        }
+                        ?>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+      <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+    </fieldset>
+</div>
+<?php 
+function echoMuc1($items,$view){?>
+    <ul>
+        <?php                     
+        foreach ($items as $item){?>
+        <li data-id="<?php echo $item['id'];?>">
+            <?php 
+            echo $item['title'];
+            if($item['number_children'] > 0){
+                $items1 = array();
+                foreach ($view->itemChiaSes1 as $temp){
+                    if ($temp['parent_id'] == $item['id']){
+                        $items1[] = $temp;
+                    }
+                }
+                echoMuc1($items1,$view);
+            }
+            ?>
+            </li>
+        <?php 
+        }
+        ?>
+    </ul>
+<?php 
+}
+?>
+<div class="row-fluid" style="padding-top:20px;margin-bottom: 50px;">
+    <div class="col-lg-12 col-md-12">
+        <div id='jqxWidget'>
+            <div id='jqxTree''>
+                <?php 
+                if(is_array($this->items)&&count($this->items)>0){
+                    echoMuc($this->items);
+                }
+                ?>
+            </div>
+            <div id='jqxMenuAll'>
+                <ul>
+                    <li>Xem</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<?php 
+function echoMuc($items){?>
+    <ul>
+        <?php                     
+        foreach ($items as $item){?>
+        <li data-id="<?php echo $item['id'];?>">
+                <?php 
+                echo $item['danh_xung']." ".$item['ten_facebook'];
+                ?>
+            </li>
+        <?php 
+        }
+        ?>
+    </ul>
+<?php  
+}
+?>
+

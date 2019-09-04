@@ -1,37 +1,123 @@
-/*
-To change this license header, choose License Headers in Project Properties.
-To change this template file, choose Tools | Templates
-and open the template in the editor.
-*/
-/* 
-    Created on : Jul 5, 2014, 12:30:17 PM
-    Author     : chanhduypq
-*/
-@font-face {
-    font-family: fontForHeader;
-    src: url(font/LCALLIG.TTF);
+form label:hover{
+    background-color: #cccccc;
 }
-div.language{
-    padding: 5px;
-    float: right;
-    margin-right: 5px;
-    border:2px solid;
-    border-radius:25px;
-    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.15), 0 2px 0 #F60;
-    font-style: italic;
-}
-div.vietnamese{
-    background: black;    
-}
-div.english{
-    background: #363636;    
-}
-div.chinese{
-    background: #924816;    
-}
-div.language a{
-    color: white;
+form label{
     cursor: pointer;
-    text-decoration: none;    
+}
+body{
+    background:#f0f0f0;
+}
+#simpleDiv{
+    font-size: 30px;
+    line-height: 1.3;
+    text-align: center;
+    color: #c1976c;
+    font-family: serif;
+    padding-top: 0;
+}
+#container{
+    padding: 20px;
+    min-height: 500px;
+    background: white;
+}
+#footer{
+    color:white;
+    background-color: #c1976c;
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+#footer div{
+    text-align: center;
+}
+#jqxTree{
+/*    visibility: hidden; 
+    float: left; 
+    margin-left: 20px;*/
+}
+li.tree_has_content{
+    color: blue !important;
+}
+li.tree_has_content li{
+    color: black;
+}
+li.tree_has_file{
+    font-style: italic !important;
+    font-weight: bolder !important;
+}
+li.tree_has_file li{
+    font-style: normal;
+    font-weight: normal;
+}
+.modal_loading {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.8) url(../images/FhHRx.gif) 50% 50% no-repeat;
+}
+body.loading .modal_loading {
+    overflow: hidden;
 }
 
+body.loading .modal_loading {
+    display: block;
+}
+
+.modal-dialog{
+    overflow-y: initial !important;
+}
+.modal-body{
+    height: 300px;
+    overflow-y: auto;
+}
+
+.item:nth-child(odd) {
+    background: silver;
+}
+
+.item:nth-child(even) {
+    background: white;
+}
+
+.toolbar{
+    margin-bottom: 40px;
+    text-align: right;
+    background-color: blanchedalmond;
+    border-radius: 20px;
+    min-height: 70px;
+    padding-bottom: 10px;
+    padding-top: 10px;
+}
+.toolbar .icon_manage{
+    width: 50px;
+    height: 50px;
+}
+.icon_manage:hover{
+    opacity: 0.5;
+    cursor: pointer;
+}
+.icon_manage.disabled{
+    opacity: 0.3;
+    cursor: default;    
+}
+div.list table{
+    width: 100%;
+    /*border-collapse: separate;*/
+}
+div.list table thead tr{
+    background-color: #c1976c;
+}
+div.list table,div.list table tr,div.list table td,div.list table th {
+    border: solid black 1px;
+}
+div.list table td,div.list table th {
+    padding: 10px;
+}
+.draggable.jqx-rc-all.jqx-tree-item.jqx-item{
+/*    max-width: 100px;
+    word-break: break-all;
+    word-wrap: break-word;*/
+}

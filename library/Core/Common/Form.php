@@ -1,5 +1,7 @@
-<?php
-
+<?php 
+/**
+ * @author Trần Công Tuệ <chanhduypq@gmail.com>
+ */
 class Core_Common_Form
 {
     /**
@@ -45,7 +47,7 @@ class Core_Common_Form
                         }
                     } else if ($element->getForInsertDB() == true) {
                         $file_key_array = array('type', 'size', 'name');
-                        foreach ($this->getElements() as $key => $value) {
+                        foreach ($form->getElements() as $key => $value) {
                             if (in_array($key, $file_key_array)) {
                                 $formData[$key] = $_FILES[$element->getName()][$key];
                             }

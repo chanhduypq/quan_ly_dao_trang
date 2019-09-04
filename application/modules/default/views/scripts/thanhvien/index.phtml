@@ -1,4 +1,7 @@
 <?php 
+echo $this->render('common/message.phtml');
+?>
+<?php 
 $items = $this->items;
 $auth = Zend_Auth::getInstance();
 if ($auth->hasIdentity()) {
@@ -8,10 +11,13 @@ else{
     $identity=NULL;
 }
 
-$columns=$this->columns;
+$columns = $this->columns;
 ?>
-
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
 <style>
+    td.highlight {
+        background-color: whitesmoke !important;
+    }
     .center{
         text-align:left;
     }
@@ -87,17 +93,10 @@ $columns=$this->columns;
     <script src="<?php echo $this->baseUrl(); ?>/js/colResizable-1.6.js?<?php echo substr(str_shuffle(str_repeat($x='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil(10/strlen($x)) )),1,10);?>"></script>
     <form method="POST" action="<?php echo $this->baseUrl();?>/thanhvien">
         <?php 
-        if(is_array($identity)&&$identity['is_download']=='1'){?>
-        <div class="row" style="margin-top: 20px;margin-bottom: 20px;">
-            <div class="col-lg-12 col-md-12" style="margin-bottom: 20px;text-align: right;">
-                <input onclick="window.location = '/thanhvien/add/'" type="button" value="Thêm mới thành viên" class="button">
-                <br>
-                <br>
-                <input onclick="window.location = '/thanhvien/export/'" type="button" value="Xuất file excel" class="button">
-
-            </div>
-        </div>
-        <?php }?>
+        if(is_array($identity)&&$identity['is_admin']=='1'){
+            echo $this->render('common/toolbarindex.phtml'); 
+        }
+        ?>
         <?php if($this->keyword!=''){?>
         <div class="row" style="margin-bottom: 20px;">
             <div class="col-lg-12 col-md-12">
@@ -143,52 +142,58 @@ $columns=$this->columns;
     <table class="table table-bordered" id="nanopool-table" style="display: none;width: 100%;">
             <thead>
                 <?php 
-                if(in_array('hinh_anh', $columns)){
-                    echo '<th>Hình ảnh</th>';
+                foreach ($columns as $key => $value){
+                    echo "<th>$value</th>";
                 }
-                if(in_array('ho_va_ten', $columns)){
-                    echo '<th>Họ và tên</th>';
-                }
-                if(in_array('phap_danh', $columns)){
-                    echo '<th>Pháp danh</th>';
-                }
-                if(in_array('nam_sinh', $columns)){
-                    echo '<th>Năm sinh</th>';
-                }
-                if(in_array('gioi_tinh', $columns)){
-                    echo '<th>Giới tính</th>';
-                }
-                if(in_array('nghe_nghiep', $columns)){
-                    echo '<th>Nghề nghiệp</th>';
-                }
-                if(in_array('email', $columns)){
-                    echo '<th>Email</th>';
-                }
-                if(in_array('facebook', $columns)){
-                    echo '<th>Facebook</th>';
-                }
-                if(in_array('cmnd', $columns)){
-                    echo '<th>Số CMND</th>';
-                }
-                if(in_array('dien_thoai', $columns)){
-                    echo '<th>Số điện thoại</th>';
-                }
-                if(in_array('dia_chi_tam_tru', $columns)){
-                    echo '<th>Địa chỉ tạm trú</th>';
-                }
-                if(in_array('dia_chi_thuong_tru', $columns)){
-                    echo '<th>Địa chỉ thường trú</th>';
-                }
-                if(in_array('ngay_dk_tham_gia', $columns)){
-                    echo '<th>Ngày ĐK tham gia</th>';
-                }
-                if(in_array('nguoi_gioi_thieu', $columns)){
-                    echo '<th>Người giới thiệu</th>';
-                }
+//                if(in_array('hinh_anh', $columns)){
+//                    echo '<th>Hình ảnh</th>';
+//                }
+//                if(in_array('ho_va_ten', $columns)){
+//                    echo '<th>Họ và tên</th>';
+//                }
+//                if(in_array('ten_facebook', $columns)){
+//                    echo '<th>Tên hiển thị trên facebook</th>';
+//                }
+//                if(in_array('phap_danh', $columns)){
+//                    echo '<th>Pháp danh</th>';
+//                }
+//                if(in_array('nam_sinh', $columns)){
+//                    echo '<th>Năm sinh</th>';
+//                }
+//                if(in_array('gioi_tinh', $columns)){
+//                    echo '<th>Giới tính</th>';
+//                }
+//                if(in_array('nghe_nghiep', $columns)){
+//                    echo '<th>Nghề nghiệp</th>';
+//                }
+//                if(in_array('email', $columns)){
+//                    echo '<th>Email</th>';
+//                }
+//                if(in_array('facebook', $columns)){
+//                    echo '<th>Facebook</th>';
+//                }
+//                if(in_array('cmnd', $columns)){
+//                    echo '<th>Số CMND</th>';
+//                }
+//                if(in_array('dien_thoai', $columns)){
+//                    echo '<th>Số điện thoại</th>';
+//                }
+//                if(in_array('dia_chi_tam_tru', $columns)){
+//                    echo '<th>Địa chỉ tạm trú</th>';
+//                }
+//                if(in_array('dia_chi_thuong_tru', $columns)){
+//                    echo '<th>Địa chỉ thường trú</th>';
+//                }
+//                if(in_array('ngay_dk_tham_gia', $columns)){
+//                    echo '<th>Ngày ĐK tham gia</th>';
+//                }
+//                if(in_array('nguoi_gioi_thieu', $columns)){
+//                    echo '<th>Người giới thiệu</th>';
+//                }
                 
                 ?>
                 <?php 
-                if(is_array($identity)&&$identity['is_download']=='1'){?>
+                if(is_array($identity)&&$identity['is_admin']=='1'){?>
                     <th>&nbsp;</th>
                 <?php 
                 }
@@ -198,66 +203,73 @@ $columns=$this->columns;
                 <?php 
                     foreach ($items as $item){?>
                     <tr>
-                        <?php if(in_array('hinh_anh', $columns)){?>
+                        <?php if(in_array('hinh_anh', array_keys($columns))){?>
                         <td>
                             <?php if(trim($item['hinh_anh'])!=""){?>
                             <img style="width: 100%;height: auto;" src="<?php echo $this->baseUrl("/avatar/".$item['hinh_anh']);?>"
                              <?php }?>
                         </td>
-                        <?php } if(in_array('ho_va_ten', $columns)){?>
+                        <?php } if(in_array('ho_va_ten', array_keys($columns))){?>
                         <td>
                             <?php echo $item['ho'].' '.$item['ten'];?>
                         </td>
-                        <?php } if(in_array('phap_danh', $columns)){?>
+                        <?php } if(in_array('phap_danh', array_keys($columns))){?>
                         <td>
                             <?php echo $item['phap_danh'];?>
                         </td>
-                        <?php } if(in_array('nam_sinh', $columns)){?>
+                        <?php } if(in_array('ten_facebook', array_keys($columns))){?>
                         <td>
-                            <?php echo $item['nam_sinh'];?>
+                            <?php echo $item['danh_xung']." ".$item['ten_facebook'];?>
                         </td>
-                        <?php } if(in_array('gioi_tinh', $columns)){?>
+                        <?php } if(in_array('facebook', array_keys($columns))){?>
                         <td>
-                            <?php echo $item['gioi_tinh'];?>
+                            <?php echo $item['facebook'];?>
                         </td>
-                        <?php } if(in_array('nghe_nghiep', $columns)){?>
-                        <td>
-                            <?php echo $item['nghe_nghiep'];?>
-                        </td>
-                        <?php } if(in_array('email', $columns)){?>
-                        <td>
-                            <?php echo nl2br($item['email']);?>
-                        </td>
-                        <?php } if(in_array('facebook', $columns)){?>
-                        <td>
-                            <?php echo nl2br($item['facebook']);?>
-                        </td>
-                        <?php } if(in_array('cmnd', $columns)){?>
-                        <td>
-                            <?php echo nl2br($item['cmnd']);?>
-                        </td>
-                        <?php } if(in_array('dien_thoai', $columns)){?>
+                        <?php } if(in_array('dien_thoai', array_keys($columns))){?>
                         <td>
                             <?php echo nl2br($item['dien_thoai']);?>
                         </td>
-                        <?php } if(in_array('dia_chi_tam_tru', $columns)){?>
+                        
+                        <?php } if(in_array('nam_sinh', array_keys($columns))){?>
+                        <td>
+                            <?php echo $item['nam_sinh'];?>
+                        </td>
+                        <?php } if(in_array('gioi_tinh', array_keys($columns))){?>
+                        <td>
+                            <?php echo $item['gioi_tinh'];?>
+                        </td>
+                        <?php } if(in_array('nghe_nghiep', array_keys($columns))){?>
+                        <td>
+                            <?php echo $item['nghe_nghiep'];?>
+                        </td>
+                        <?php } if(in_array('email', array_keys($columns))){?>
+                        <td>
+                            <?php echo nl2br($item['email']);?>
+                        </td>
+                        
+                        <?php } if(in_array('cmnd', array_keys($columns))){?>
+                        <td>
+                            <?php echo nl2br($item['cmnd']);?>
+                        </td>
+                        
+                        <?php } if(in_array('dia_chi_tam_tru', array_keys($columns))){?>
                         <td>
                             <?php echo nl2br($item['dia_chi_tam_tru']);?>
                         </td>
-                        <?php } if(in_array('dia_chi_thuong_tru', $columns)){?>
+                        <?php } if(in_array('dia_chi_thuong_tru', array_keys($columns))){?>
                         <td>
                             <?php echo nl2br($item['dia_chi_thuong_tru']);?>
                         </td>
-                        <?php } if(in_array('ngay_dk_tham_gia', $columns)){?>
+                        <?php } if(in_array('ngay_dk_tham_gia', array_keys($columns))){?>
                         <td>
                             <?php echo nl2br($item['ngay_dk_tham_gia']);?>
                         </td>
-                        <?php } if(in_array('nguoi_gioi_thieu', $columns)){?>
+                        <?php } if(in_array('nguoi_gioi_thieu', array_keys($columns))){?>
                         <td>
                             <?php echo nl2br($item['nguoi_gioi_thieu']);?>
                         </td>
                         <?php } 
-                        if(is_array($identity)&&$identity['is_download']=='1'){?>
+                        if(is_array($identity)&&$identity['is_admin']=='1'){?>
                         <td>
                             <a class="remove" title="Click vào đây để xóa" href="<?php echo $this->baseUrl('/thanhvien/delete/id/') . $item['id']; ?>">
                                 <img class="delete question" src="<?php echo $this->baseUrl("/images/icon/delete-icon.png"); ?>"/>                                                   
@@ -282,9 +294,15 @@ $columns=$this->columns;
         
     $(window).load(function() {
           $('#nanopool-table').show();
-          $('#nanopool-table').DataTable();
+          var table = $('#nanopool-table').DataTable();
           $('#nanopool-table_filter').find('input').eq(0).css('width','270px');
           $('#nanopool-table td').css('text-align','center');
+           $('#nanopool-table tbody').on( 'mouseenter', 'td', function () {
+                    var colIdx = table.cell(this).index().column;
+
+                    $( table.cells().nodes() ).removeClass( 'highlight' );
+                    $( table.column( colIdx ).nodes() ).addClass( 'highlight' );
+                } );
           <?php 
           if(is_array($items)&&count($items)>0){?>
           $("table").colResizable({

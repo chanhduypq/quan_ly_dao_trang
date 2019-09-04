@@ -57,7 +57,7 @@ class Admin_IndexController extends Core_Controller_Action
     {
         $auth = Zend_Auth::getInstance();
         $auth->clearIdentity();
-        $this->_helper->redirector('index', 'index', 'admin');
+        $this->_helper->redirector('index', 'index', 'default');
     }
 
     public function changepasswordAction() 
@@ -67,19 +67,20 @@ class Admin_IndexController extends Core_Controller_Action
 
     public function ajaxchangepasswordAction() 
     {
-        $this->disableLayout();
-        $oldPassword = $this->_request->getParam('oldPassword');
+        $this->isAjax();
+        $oldPassword = $this->_getParam('oldPassword',"");
         $auth = Zend_Auth::getInstance();
         $identity = $auth->getIdentity();
 
         if ($identity['password'] != sha1($oldPassword)) {
             echo 'error';
-            return;
+            exit;
         }
-        $newPassword = $this->_request->getParam('newPassword');
+        $newPassword = $this->_getParam('newPassword',"");
         $index = new Admin_Model_IndexMapper();
-        $index->changePassword($identity['email'], $newPassword, 'user');
+        $index->changePassword($identity['dien_thoai'], $newPassword, 'thanh_vien');
         echo "";
+        exit;
     }
 
 }

@@ -1,0 +1,95 @@
+<?php 
+echo $this->doctype();
+?>
+<html>
+    <head>
+        <meta http-equiv="content-type" content="text/html;charset=utf-8;" />
+        <?php echo $this->headTitle() ?>
+        <?php echo $this->headMeta() ?>
+        <?php echo $this->headLink() ?>
+        <?php echo $this->headScript() ?>
+        <script type="text/javascript" src="<?php echo $this->baseUrl(); ?>/js/jquery-2.0.3.js"></script>
+        
+        <!--bootstrap-->
+        <link href="<?php echo $this->baseUrl('/bootstrap/css/bootstrap.min.css'); ?>?<?php echo substr(str_shuffle(str_repeat($x = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil(10 / strlen($x)))), 1, 10); ?>" media="screen" rel="stylesheet" type="text/css" />				 
+        <link href="<?php echo $this->baseUrl('/bootstrap/css/bootstrap-theme.min.css'); ?>?<?php echo substr(str_shuffle(str_repeat($x = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil(10 / strlen($x)))), 1, 10); ?>" media="screen" rel="stylesheet" type="text/css" />				 
+        <script type="text/javascript" src="<?php echo $this->baseUrl(); ?>/bootstrap/js/bootstrap.min.js"></script>
+        <!--end bootstrap-->
+        <!--menu-->
+        <link href="<?php echo $this->baseUrl('/css/menu/menu.css'); ?>?<?php echo substr(str_shuffle(str_repeat($x = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil(10 / strlen($x)))), 1, 10); ?>" media="screen" rel="stylesheet" type="text/css" />				 
+        <!--end menu-->  
+        <!--end layout--> 
+
+        <link rel="stylesheet" href="<?php echo $this->baseUrl('/jquery-ui-1.10.3/themes/smoothness/jquery-ui.css'); ?>" type="text/css"/>
+        <script type="text/javascript" src="<?php echo $this->baseUrl(); ?>/jquery-ui-1.10.3/ui/jquery-ui.js"></script>          
+
+        <!--hiệu ứng chuyển động ảnh-->
+        <script type="text/javascript" src="<?php echo $this->baseUrl('/js/jquery.cycle.all.js'); ?>"></script>
+        <!--end hiệu ứng chuyển động ảnh-->
+        <!--chạy chữ-->
+        <script type="text/javascript" src="<?php echo $this->baseUrl('/js/animation_text/textTyper.js'); ?>"></script>
+        <!--end chạy chữ-->  
+        <script type="text/javascript" src="<?php echo $this->baseUrl('/js/common.js'); ?>"></script>
+        <link rel="stylesheet" href="<?php echo $this->baseUrl('/css/style.css'); ?>" type="text/css"/>
+        <link rel="stylesheet" href="<?php echo $this->baseUrl('/css/phan_trang.css'); ?>" type="text/css"/>
+    </head>
+    <body>
+
+        <?php echo $this->render('hotel/dialog.phtml'); ?>
+        <div class="container">
+            <div class="row" style="padding-top: 30px;height: 100px;">
+                <div class="col-lg-3 col-md-3">
+
+
+                    <div class="col-lg-12 col-md-12" id="logo_header" style="margin-top: -28px;">
+                        <img src="<?php echo $this->baseUrl('/images/logo1.png'); ?>" style="object-fit: cover;" id="logo-img"/>
+                        <img src="<?php echo $this->baseUrl('/images/logo1.png'); ?>" style="object-fit: cover;" id="logo-img1"/>
+                    </div>
+                </div>
+                <div class="col-lg-5 col-md-5">
+                    <div class="row" id="simpleDiv">
+                        <div class="col-lg-12 col-md-12">Quản lý khách sạn</div>
+                    </div>  
+                </div>
+                <div class="col-lg-4 col-md-4">
+                    <?php echo $this->render('hotel/auth.phtml'); ?>
+                </div>
+            </div>
+            <div class="row" style="margin-bottom: 20px;">
+                <?php echo $this->render('hotel/menu.phtml'); ?>
+            </div>
+            <div class="row" id="container">
+                <?php echo $this->layout()->content; ?>     
+            </div>
+
+            <div class="row" id="footer">	
+                <div class="col-lg-12 col-md-12">
+                    &copy;Fast track
+                    <br/>
+                    Liên hệ: Fast track          
+                </div>
+            </div>
+
+
+        </div><!-- /.container -->
+        <div class="modal_loading"></div>
+
+        <script type="text/javascript">
+
+            /**
+             * end index.phtml
+             **/
+            jQuery(function ($) {
+
+                $('#logo_header').cycle({
+                    fx: 'zoom', sync: false, delay: -2000
+                });
+
+                $('div#simpleDiv').textTyper({repeatAnimation: true, repeatTimes: 100, speed: 50});
+                
+            });
+
+        </script>
+        
+    </body>
+</html>

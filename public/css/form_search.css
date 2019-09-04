@@ -2,12 +2,6 @@
     background-color: #f1f1f1
 }
 
-@media(min-width:992px) {
-    .container {
-        width: 960px
-    }
-}
-
 .dx-content .dx-container-column {
     padding-top: .5rem;
     padding-bottom: .5rem;

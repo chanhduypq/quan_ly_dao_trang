@@ -1,0 +1,50 @@
+<?php  
+$auth = Zend_Auth::getInstance();
+if ($auth->hasIdentity()) {
+    $identity = $auth->getIdentity();
+    if (isset($identity['type'])) {
+        $userType = $identity['type'];
+        $userPermistionPages = array_keys(Hotel_Model_Nhanvien::permistion[$userType]);
+    } else {
+        $userPermistionPages = array();
+    }
+} else {
+    $identity = array();
+    $userPermistionPages = array();
+}
+$controller = Zend_Controller_Front::getInstance()->getRequest()->getControllerName();
+$action = Zend_Controller_Front::getInstance()->getRequest()->getActionName();
+
+?>
+<nav class="navbar navbar-default" style="margin-bottom: 5px;background: none;width: auto;border: none;">
+    <ul class="nav navbar-nav" id="topnav">
+
+        <li<?php if ($controller == 'index') echo ' class="active"'; ?>><a href="<?php echo $this->baseUrl(); ?>/hotel">Trang chủ</a></li>
+        
+        <?php 
+        if ($auth->hasIdentity()) {?>
+            <?php 
+            if(in_array('nhanvien', $userPermistionPages)){?>
+                <li<?php if ($controller == 'nhanvien') echo ' class="active"'; ?>><a href="<?php echo $this->baseUrl(); ?>/hotel/nhanvien">Nhân viên</a></li>
+            <?php     
+            }
+            ?>
+            <?php 
+            if(in_array('loaiphong', $userPermistionPages)){?>
+                <li<?php if ($controller == 'loaiphong') echo ' class="active"'; ?>><a href="<?php echo $this->baseUrl(); ?>/hotel/loaiphong">Loại phòng</a></li>
+            <?php     
+            }
+            ?>
+            <?php 
+            if(in_array('phong', $userPermistionPages)){?>
+                <li<?php if ($controller == 'phong') echo ' class="active"'; ?>><a href="<?php echo $this->baseUrl(); ?>/hotel/phong">Phòng</a></li>
+            <?php     
+            }
+            ?>    
+            <?php 
+        }
+        ?>
+
+
+    </ul>
+</nav>

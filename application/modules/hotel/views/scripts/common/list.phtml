@@ -1,0 +1,62 @@
+<?php 
+$module_name = Zend_Controller_Front::getInstance()->getRequest()->getModuleName();
+$controller_name = Zend_Controller_Front::getInstance()->getRequest()->getControllerName();
+$items = $this->items;
+$infos = $this->infos;
+?>
+<div class="row-fluid list">
+    <table>
+        <thead>
+            <tr>
+                <?php
+                $leftWidth = 100;
+                foreach ($infos as $key => $value) {
+                    $leftWidth -= intval($value['width']);
+                    ?>
+                    <th style="text-align: center;width: <?php echo $value['width'] ?>%;"><?php echo $value['label'] ?></th>
+                    <?php
+                }
+                ?>
+                <th style="width: <?php echo $leftWidth; ?>%;">&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <?php
+            foreach ($items as $item) {
+                ?>
+                <tr class="item">
+                    <?php foreach ($infos as $key => $value) { ?>
+                        <td>
+                            <?php echo $item[$key]; ?>
+                        </td>
+                        <?php
+                    }
+                    ?>
+                    <td style="text-align: center;">
+                        <?php 
+                        if($this->allowDelete){?>
+                        <a class="remove allow" title="Click vào đây để xóa" href="<?php echo $this->baseUrl('/' . $module_name . '/' . $controller_name . '/delete/' . $this->primaryFieldName . '/') . $item[$this->primaryFieldName]; ?>">
+                            <img class="delete question icon_manage" src="<?php echo $this->baseUrl("/images/icon/delete-icon.png"); ?>"/>                                                   
+                        </a>
+                        <?php 
+                        }
+                        if($this->allowEdit){
+                        ?>
+                        <a href="<?php echo $this->baseUrl('/' . $module_name . '/' . $controller_name . '/edit/' . $this->primaryFieldName . '/') . $item[$this->primaryFieldName] . '/page/' . $this->page; ?>">
+                            <img class="edit question icon_manage" title="Click vào đây để sửa" style="cursor: pointer;" src="<?php echo $this->baseUrl("/images/icon/ico_edit.png"); ?>" onclick="editItem(this);"/>                                                   
+                        </a>
+                        <?php 
+                        }
+                        ?>
+                    </td>
+                </tr>
+
+                <?php
+            }
+            ?>
+        </tbody>
+    </table>
+</div>
+
+

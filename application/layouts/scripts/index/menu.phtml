@@ -1,33 +1,66 @@
 <?php 
-$module=Zend_Controller_Front::getInstance()->getRequest()->getModuleName();
 $auth = Zend_Auth::getInstance();
 if ($auth->hasIdentity()) {
     $identity = $auth->getIdentity();
+} else {
+    $identity = NULL;
 }
-else{
-    $identity=NULL;
-}
+$controller = Zend_Controller_Front::getInstance()->getRequest()->getControllerName();
+$action = Zend_Controller_Front::getInstance()->getRequest()->getActionName();
 ?>
 <nav class="navbar navbar-default" style="margin-bottom: 5px;background: none;width: auto;border: none;">
-        <ul class="nav navbar-nav" id="topnav">
+    <ul class="nav navbar-nav" id="topnav">
+
+        <li<?php if ($controller == 'index') echo ' class="active"'; ?>><a href="<?php echo $this->baseUrl(); ?>/">Trang chủ</a></li>
+        
+        <?php 
+        if ($auth->hasIdentity()) {?>
+            <li<?php if ($controller == 'noidungchiase'&&($action == 'dongphapsuphu'||$action == 'dongphapsuphutree')) echo ' class="active has_children"';else echo  ' class="has_children"';?> style="z-index: 200;">
+                <a>Dòng Pháp vĩ đại của Sư Phụ</a>
+                <ul>
+                    <li><a href="<?php echo $this->baseUrl(); ?>/noidungchiase/dongphapsuphu">Xem đầy đủ</a></li>
+                    <li><a href="<?php echo $this->baseUrl(); ?>/noidungchiase/dongphapsuphutree">Xem dạng cây</a></li>
+                </ul>
+            </li>
+            <li<?php if ($controller == 'noidungchiase'&&($action == 'canhan'||$action == 'canhantree')) echo ' class="active has_children"';else echo  ' class="has_children"'; ?> style="z-index: 200;">
+                <a>Nội dung chia sẻ</a>
+                <ul>
+                    <li><a href="<?php echo $this->baseUrl(); ?>/noidungchiase/canhan">Xem đầy đủ</a></li>
+                    <li><a href="<?php echo $this->baseUrl(); ?>/noidungchiase/canhantree">Xem dạng cây</a></li>
+                </ul>
+            </li>
+            
             <?php 
-            if($module=='default'){?>
-                <li<?php if (Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'index') echo ' class="active"'; ?>><a href="<?php echo $this->baseUrl(); ?>/">Trang chủ</a></li>
-                <li<?php if (Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'thanhvien') echo ' class="active"'; ?>><a href="<?php echo $this->baseUrl(); ?>/thanhvien">Thành viên</a></li>                        
-                <?php 
-                if(is_array($identity)&&$identity['is_upload']=='1'){?>
-                <li<?php if (Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'excel') echo ' class="active"'; ?>><a href="<?php echo $this->baseUrl(); ?>/excel">Nhập liệu</a></li>
-                <?php
-                }                
-            }
-            else { ?>
-                <li<?php if (Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'user') echo ' class="active"'; ?>><a href="<?php echo $this->baseUrl(); ?>/admin/user">User</a></li>
-                <li<?php if (Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'homecontent') echo ' class="active"'; ?>><a href="<?php echo $this->baseUrl(); ?>/admin/homecontent">Nội dung trang chủ</a></li>                                
-                <li<?php if (Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'image') echo ' class="active"'; ?>><a href="<?php echo $this->baseUrl(); ?>/admin/image">Logo và hình nền</a></li>
-                <li<?php if (Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'headerfooter') echo ' class="active"'; ?>><a href="<?php echo $this->baseUrl(); ?>/admin/headerfooter">Phía trên và phía dưới</a></li>
-                <li<?php if (Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'settings') echo ' class="active"'; ?>><a href="<?php echo $this->baseUrl(); ?>/admin/settings">Cài đặt</a></li>
-            <?php 
-            }
+            if (is_array($identity) && $identity['is_admin'] == '1') {
             ?>
-        </ul>
+            <li<?php if ($controller == 'chuyentienthan') echo ' class="active"'; ?>><a href="<?php echo $this->baseUrl(); ?>/chuyentienthan">Chuyện tiền thân</a></li>
+            <li<?php if ($controller == 'noidungchiase'&&($action == 'kinhnikaya'||$action == 'kinhnikayatree')) echo ' class="active has_children"';else echo  ' class="has_children"'; ?> style="z-index: 200;">
+                <a>Kinh Nikaya</a>
+                <ul>
+                    <li><a href="<?php echo $this->baseUrl(); ?>/noidungchiase/kinhnikaya">Xem đầy đủ</a></li>
+                    <li><a href="<?php echo $this->baseUrl(); ?>/noidungchiase/kinhnikayatree">Xem dạng cây</a></li>
+                </ul>
+            </li>
+            
+                <li<?php if ($controller == 'chiase'||$controller == 'quanlychuyentienthan'||$controller == 'quanlybaigiang'||$controller == 'quanlydpsp'||$controller == 'quanlykinhnikaya'||$controller == 'chiasehuynhde'||$controller == 'thanhvien'||$controller == 'user') echo ' class="active has_children"';else echo  ' class="has_children"'; ?> style="z-index: 200;">
+                    <a>Quản lý</a>
+                    <ul>
+                        <li><a href="<?php echo $this->baseUrl(); ?>/thanhvien">Thành viên</a></li>                        
+                        <li><a href="<?php echo $this->baseUrl(); ?>/chiase">Quản lý nội dung chia sẻ</a></li>  
+                        <li><a href="<?php echo $this->baseUrl(); ?>/chiasehuynhde">Quản lý việc đã chia sẻ</a></li> 
+                        <li><a href="<?php echo $this->baseUrl(); ?>/quanlybaigiang">Quản lý bài giảng</a></li> 
+                        <li><a href="<?php echo $this->baseUrl(); ?>/quanlykinhnikaya">Quản lý Kinh Nikaya</a></li> 
+                        <li><a href="<?php echo $this->baseUrl(); ?>/quanlydpsp">Quản lý dòng Pháp vĩ đại của Sư Phụ</a></li> 
+                        <li><a href="<?php echo $this->baseUrl(); ?>/quanlychuyentienthan">Quản lý chuyện tiền thân của Phật</a></li> 
+                        <li><a href="<?php echo $this->baseUrl(); ?>/user">User</a></li>
+                    </ul>
+                </li>
+                <li<?php if ($controller == 'homecontent') echo ' class="active"'; ?>><a href="<?php echo $this->baseUrl(); ?>/homecontent">Cài đặt nội dung trang chủ</a></li>
+            <?php 
+            }
+        }
+        ?>
+
+
+    </ul>
 </nav>

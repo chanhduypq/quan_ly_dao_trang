@@ -1,0 +1,17 @@
+<?php 
+$module_name = Zend_Controller_Front::getInstance()->getRequest()->getModuleName();
+$controller_name = Zend_Controller_Front::getInstance()->getRequest()->getControllerName();
+$auth = Zend_Auth::getInstance();
+if ($auth->hasIdentity()) {
+    $identity = $auth->getIdentity();
+} else {
+    $identity = array();
+}
+if($this->allowAdd){
+?>
+<div class="col-lg-12 col-md-12 toolbar">
+    <img onclick="window.location = '<?php echo $this->baseUrl('/' . $module_name . '/' . $controller_name . '/add/page/'.$this->page);?>';" class="icon_manage" src="<?php echo $this->baseUrl();?>/images/aeon-add-round-green-and-white-cross-logo-png-clipart.jpg"/>
+</div>
+<?php 
+}
+?>
